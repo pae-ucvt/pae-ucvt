@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Конструктор учебных программ</title>
+<style>
+:root{--bg:#f5f5f7;--surface:#fff;--border:#e0e0e0;--text:#1a1a2e;--text2:#666;--blue:#4a7dff;--blue2:#3a6de0;--green:#10b981;--red:#ef4444;--orange:#f59e0b;--radius:8px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,#4a7dff,#a78bfa);color:#fff;padding:40px 24px;text-align:center}
+.header h1{font-size:32px;font-weight:700;margin-bottom:8px}
+.header p{font-size:16px;opacity:0.9}
+.container{max-width:900px;margin:0 auto;padding:24px}
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:4px;margin-bottom:24px;overflow-x:auto}
+.tab{flex:1;padding:12px 16px;border:none;background:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:500;color:var(--text2);transition:all 0.2s;white-space:nowrap}
+.tab:hover{background:#f0f0f0}
+.tab.active{background:var(--blue);color:#fff}
+.section{display:none;animation:fadeIn 0.3s}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.card-title{font-size:16px;font-weight:600;margin-bottom:16px;color:var(--text)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-row.full{grid-template-columns:1fr}
+@media(max-width:640px){.form-row{grid-template-columns:1fr}}
+label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:4px}
+input,textarea,select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:14px;font-family:inherit;transition:border-color 0.2s}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--blue)}
+textarea{resize:vertical;min-height:80px}
+.lesson{background:#fafafa;border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.lesson-header{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.lesson-num{background:var(--blue);color:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+.lesson-title-input{flex:1;font-size:15px;font-weight:600;padding:8px 12px;border:1px solid var(--border);border-radius:6px}
+.topic{background:#fff;border:1px solid #e8e8e8;border-radius:6px;padding:16px;margin-bottom:12px}
+.topic-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.topic-num{background:#e8e8e8;color:var(--text);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+.topic-header input{flex:1}
+.btn-remove{background:none;border:none;color:var(--red);cursor:pointer;font-size:18px;padding:4px 8px;border-radius:4px}
+.btn-remove:hover{background:#fee}
+.btn-add-q{background:none;border:1px dashed var(--border);color:var(--text2);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px;margin-top:4px}
+.btn-add-q:hover{border-color:var(--blue);color:var(--blue)}
+.btn-add{background:none;border:1px dashed var(--blue);color:var(--blue);padding:12px 20px;border-radius:var(--radius);cursor:pointer;font-size:14px;font-weight:500;width:100%;margin-top:8px}
+.btn-add:hover{background:rgba(74,125,255,0.05)}
+.actions{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+.btn{padding:14px 28px;border:none;border-radius:var(--radius);font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue2)}
+.btn-secondary{background:var(--surface);border:1px solid var(--border);color:var(--text)}
+.btn-secondary:hover{background:#f0f0f0}
+.criteria-row{display:grid;grid-template-columns:1fr 120px 40px;gap:8px;margin-bottom:8px;align-items:center}
+.msg{padding:16px;border-radius:var(--radius);margin-top:16px;font-size:14px}
+.msg-ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+.msg-err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.footer{text-align:center;padding:32px 24px;color:var(--text2);font-size:13px;border-top:1px solid var(--border);margin-top:40px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Конструктор учебных программ</h1>
+  <p>Заполните форму → скачайте готовый Word-документ</p>
+</div>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab(0)">Основное</button>
+    <button class="tab" onclick="showTab(1)">Пояснительная</button>
+    <button class="tab" onclick="showTab(2)">Требования</button>
+    <button class="tab" onclick="showTab(3)">Занятия</button>
+    <button class="tab" onclick="showTab(4)">Литература</button>
+  </div>
+
+  <div class="section active" id="tab0">
+    <div class="card">
+      <div class="card-title">Данные программы</div>
+      <div class="form-row">
+        <div><label>Название программы</label><input id="f_name" value="Нейросети в работе преподавателя"></div>
+        <div><label>Город</label><input id="f_city" value="Санкт-Петербург"></div>
+      </div>
+      <div class="form-row">
+        <div><label>Год</label><input id="f_year" type="number" value="2026"></div>
+        <div><label>Объём часов</label><select id="f_hours" onchange="updateLessons()"><option value="36" selected>36 часов (9 занятий)</option><option value="72">72 часа (18 занятий)</option></select></div>
+      </div>
+      <div class="form-row full">
+        <div><label>Цель программы</label><textarea id="f_goal">Формирование у педагогов компетенций в области использования нейросетей для повышения качества образовательного процесса</textarea></div>
+      </div>
+      <div class="form-row">
+        <div><label>Категория слушателей</label><input id="f_audience" value="Преподаватели СПО"></div>
+        <div><label>Формат занятий</label><input id="f_schedule" value="4 академических часа в день"></div>
+      </div>
+      <div class="form-row full">
+        <div><label>Продолжительность</label><input id="f_duration" value="9 недель (1 занятие в неделю)"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="tab1">
+    <div class="card">
+      <div class="card-title">Пояснительная записка</div>
+      <div class="form-row full"><div><label>Цели программы</label><textarea id="f_purpose">Программа направлена на формирование у педагогов навыков эффективного использования современных нейросетей и ИИ-инструментов в профессиональной деятельности</textarea></div></div>
+      <div class="form-row full"><div><label>Задачи программы (по одной на строку)</label><textarea id="f_tasks">Изучить основные типы нейросетей и их области применения
+Научиться составлять эффективные запросы (промпты)
+Освоить инструменты ИИ для создания учебных материалов
+Развить критическое отношение к результатам работы ИИ
+Применить полученные знания на практике</textarea></div></div>
+      <div class="form-row full"><div><label>Актуальность программы</label><textarea id="f_relevance">Внедрение искусственного интеллекта в образование — одно из ключевых направлений модернизации. Педагоги должны владеть инструментами ИИ, чтобы повышать качество обучения и снижать рутинную нагрузку.</textarea></div></div>
+      <div class="form-row full"><div><label>Уникальность программы (по одной на строку)</label><textarea id="f_uniqueness">Практико-ориентированный подход — каждый участник создаёт собственные материалы
+Актуальный контент — используются самые современные инструменты
+Привязка к реальным задачам педагогов</textarea></div></div>
+    </div>
+  </div>
+
+  <div class="section" id="tab2">
+    <div class="card">
+      <div class="card-title">Требования к уровню освоения</div>
+      <div class="form-row full"><div><label>Знать (по одной на строку)</label><textarea id="f_know">Основные типы нейросетей и их назначение
+Принципы составления эффективных запросов
+Этические и правовые аспекты использования ИИ
+Возможности и ограничения современных ИИ-инструментов</textarea></div></div>
+      <div class="form-row full"><div><label>Уметь и владеть (по одной на строку)</label><textarea id="f_able">Составлять эффективные запросы к нейросетям
+Генерировать и редактировать тексты с помощью ИИ
+Создавать презентации и визуальные материалы
+Оценивать качество результатов работы ИИ
+Применять ИИ-инструменты в повседневной работе</textarea></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Оценивание</div>
+      <div class="form-row full"><div><label>Текущий контроль</label><textarea id="f_control">Текущий контроль осуществляется на каждом занятии в форме устного опроса, выполнения практических заданий и обсуждения результатов.</textarea></div></div>
+      <div class="form-row full"><div><label>Итоговая аттестация</label><textarea id="f_attestation">Итоговая аттестация проводится в форме защиты проекта. Слушатель представляет результат работу — готовый учебный материал, созданный с помощью ИИ.</textarea></div></div>
+      <div class="form-row full"><div><label>Портфолио (по одной на строку)</label><textarea id="f_portfolio">Презентация с описанием опыта использования ИИ
+Коллекция промптов для решения профессиональных задач
+Самостоятельно созданный учебный материал</textarea></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Критерии оценивания</div>
+      <div id="criteria-list">
+        <div class="criteria-row"><input value="Глубина раскрытия темы"><input value="отлично"><button class="btn-remove" onclick="this.parentElement.remove()">×</button></div>
+        <div class="criteria-row"><input value="Практическая значимость"><input value="хорошо"><button class="btn-remove" onclick="this.parentElement.remove()">×</button></div>
+        <div class="criteria-row"><input value="Качество презентации"><input value="удовлетворительно"><button class="btn-remove" onclick="this.parentElement.remove()">×</button></div>
+      </div>
+      <button class="btn-add-q" onclick="addCriteria()">+ Добавить критерий</button>
+    </div>
+  </div>
+
+  <div class="section" id="tab3">
+    <div id="lessons-container"></div>
+    <button class="btn-add" onclick="addLesson()">+ Добавить занятие</button>
+  </div>
+
+  <div class="section" id="tab4">
+    <div class="card">
+      <div class="card-title">Нормативные документы (по одной на строку)</div>
+      <div class="form-row full"><div><textarea id="f_docs" rows="4">Федеральный закон «Об образовании в Российской Федерации» от 29.12.2012 № 273-ФЗ
+Приказ Минтруда России от 18.10.2013 № 544н «Об утверждении профессионального стандарта "Педагог"»</textarea></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Интернет-ресурсы (по одной на строку)</div>
+      <div class="form-row full"><div><textarea id="f_resources" rows="4">https://chat.openai.com — ChatGPT
+https://bard.google.com — Google Bard
+https://docs.anthropic.com — Claude
+https://habr.com — Статьи об ИИ в образовании</textarea></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="actions">
+    <button class="btn btn-primary" onclick="downloadDocx()">Скачать Word-документ</button>
+    <button class="btn btn-secondary" onclick="downloadJson()">Скачать JSON</button>
+    <button class="btn btn-secondary" onclick="previewJson()">Просмотр JSON</button>
+  </div>
+  <div id="msg"></div>
+</div>
+
+<div class="footer">Конструктор учебных программ · Open Code · 2026</div>
+
+<script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script>
+var lessonsData=[];
+
+function showTab(i){
+  document.querySelectorAll('.tab').forEach(function(t,j){t.classList.toggle('active',j===i)});
+  document.querySelectorAll('.section').forEach(function(s,j){s.classList.toggle('active',j===i)});
+}
+
+function val(id){return document.getElementById(id).value}
+function lines(id){return document.getElementById(id).value.split('\n').map(function(s){return s.trim()}).filter(Boolean)}
+function addCriteria(){
+  var d=document.createElement('div');d.className='criteria-row';
+  d.innerHTML='<input placeholder="Критерий"><input placeholder="Оценка"><button class="btn-remove" onclick="this.parentElement.remove()">×</button>';
+  document.getElementById('criteria-list').appendChild(d);
+}
+
+function getLessonCount(){return parseInt(document.getElementById('f_hours').value)===36?9:18}
+
+function updateLessons(){
+  var target=getLessonCount();
+  while(lessonsData.length<target) lessonsData.push({title:'',topics:[{title:'',content:''}],questions:['','','']});
+  while(lessonsData.length>target) lessonsData.pop();
+  renderLessons();
+}
+
+function addLesson(){
+  lessonsData.push({title:'',topics:[{title:'',content:''}],questions:['','','']});
+  renderLessons();
+}
+
+function renderLessons(){
+  var c=document.getElementById('lessons-container');c.innerHTML='';
+  lessonsData.forEach(function(l,i){
+    var div=document.createElement('div');div.className='lesson';
+    var topicsHtml='';
+    (l.topics||[]).forEach(function(t,j){
+      topicsHtml+='<div class="topic"><div class="topic-header"><div class="topic-num">'+(i+1)+'.'+(j+1)+'</div><input value="'+esc(t.title)+'" placeholder="Название темы" onchange="lessonsData['+i+'].topics['+j+'].title=this.value"></div><textarea placeholder="Содержание темы" onchange="lessonsData['+i+'].topics['+j+'].content=this.value">'+esc(t.content)+'</textarea></div>';
+    });
+    var questionsHtml='';
+    (l.questions||[]).forEach(function(q,j){
+      questionsHtml+='<div style="display:flex;gap:8px;margin-bottom:8px"><input value="'+esc(q)+'" placeholder="Вопрос '+(j+1)+'" onchange="lessonsData['+i+'].questions['+j+']=this.value" style="flex:1"><button class="btn-remove" onclick="lessonsData['+i+'].questions.splice('+j+',1);renderLessons()">×</button></div>';
+    });
+    div.innerHTML='<div class="lesson-header"><div class="lesson-num">'+(i+1)+'</div><input class="lesson-title-input" value="'+esc(l.title)+'" placeholder="Тема занятия '+(i+1)+'" onchange="lessonsData['+i+'].title=this.value"></div><div style="margin-bottom:12px"><label>Темы занятия</label>'+topicsHtml+'<button class="btn-add-q" onclick="if(!lessonsData['+i+'].topics)lessonsData['+i+'].topics=[];lessonsData['+i+'].topics.push({title:\'\',content:\'\'});renderLessons()">+ Тема</button></div><div><label>Контрольные вопросы</label>'+questionsHtml+'<button class="btn-add-q" onclick="lessonsData['+i+'].questions.push(\'\');renderLessons()">+ Вопрос</button></div>';
+    c.appendChild(div);
+  });
+}
+
+function esc(s){return(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+
+function gatherData(){
+  var lessons=lessonsData.map(function(l,i){
+    return{
+      num:i+1,title:l.title||'Занятие '+(i+1),hours:4,lectures:2,practice:2,
+      control:'Устный опрос, практическое задание',
+      topics:(l.topics||[]).map(function(t,j){return{num:(i+1)+'.'+(j+1),title:t.title||'Тема '+(j+1),hours:2,lectures:1,practice:1,content:t.content||''}}),
+      questions:(l.questions||[]).filter(Boolean)
+    };
+  });
+  var criteria=[];
+  document.querySelectorAll('#criteria-list .criteria-row').forEach(function(r){
+    var inputs=r.querySelectorAll('input');
+    if(inputs[0]&&inputs[0].value) criteria.push({text:inputs[0].value,grade:inputs[1]?inputs[1].value:'хорошо'});
+  });
+  return{
+    name:val('f_name'),city:val('f_city'),year:parseInt(val('f_year')),
+    goal:val('f_goal'),audience:val('f_audience'),hours:parseInt(val('f_hours')),
+    schedule_format:val('f_schedule'),duration:val('f_duration'),
+    purpose:val('f_purpose'),tasks:lines('f_tasks'),relevance:val('f_relevance'),
+    uniqueness:lines('f_uniqueness'),
+    practical_value:'Программа ориентирована на практическое применение полученных знаний.',
+    structure:'Программа состоит из теоретических и практических занятий.',
+    conditions:['Программа реализуется в очной форме','Доступ к компьютеру и интернету'],
+    must_know:lines('f_know'),must_be_able:lines('f_able'),
+    current_control:val('f_control'),final_assessment:val('f_attestation'),
+    portfolio:lines('f_portfolio'),criteria:criteria,
+    regulatory_docs:lines('f_docs'),internet_resources:lines('f_resources'),
+    lessons:lessons
+  };
+}
+
+function showMsg(type,text){
+  var m=document.getElementById('msg');
+  m.className='msg '+(type==='ok'?'msg-ok':'msg-err');
+  m.textContent=text;
+  setTimeout(function(){m.className=''},5000);
+}
+
+function downloadJson(){
+  try{
+    var data=gatherData();
+    var json=JSON.stringify(data,null,2);
+    var blob=new Blob([json],{type:'application/json'});
+    if(typeof saveAs==='function'){saveAs(blob,data.name+'.json')}
+    else{var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=data.name+'.json';a.click()}
+    showMsg('ok','JSON-файл скачан!');
+  }catch(e){showMsg('err','Ошибка: '+e.message)}
+}
+
+function previewJson(){
+  try{
+    var data=gatherData();
+    var w=window.open('','_blank');
+    w.document.write('<pre style="font-size:14px;padding:20px">'+JSON.stringify(data,null,2).replace(/</g,'&lt;')+'</pre>');
+  }catch(e){showMsg('err','Ошибка: '+e.message)}
+}
+
+function downloadDocx(){
+  if(typeof docx==='undefined'){showMsg('err','Библиотека docx не загрузилась. Проверьте интернет-соединение.');return}
+  try{
+    var data=gatherData();
+    var D=docx;
+    var children=[];
+
+    children.push(new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{after:200},children:[new D.TextRun({text:'ДОПОЛНИТЕЛЬНАЯ ПРОФЕССИОНАЛЬНАЯ ПРОГРАММА',bold:true,size:32,font:'Times New Roman'})]}));
+    children.push(new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{after:200},children:[new D.TextRun({text:'повышения квалификации',size:28,font:'Times New Roman'})]}));
+    children.push(new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{after:200},children:[new D.TextRun({text:'\u00AB'+data.name+'\u00BB',bold:true,size:32,font:'Times New Roman'})]}));
+    children.push(new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{after:400},children:[new D.TextRun({text:data.city+'\n'+data.year,size:24,font:'Times New Roman'})]}));
+    children.push(new D.Paragraph({children:[new D.PageBreak()]}));
+
+    children.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_1,spacing:{after:200},children:[new D.TextRun({text:'УЧЕБНЫЙ ПЛАН',bold:true,size:32,font:'Times New Roman'})]}));
+    children.push(new D.Paragraph({spacing:{after:100},children:[new D.TextRun({text:'Цель: '+data.goal,size:24,font:'Times New Roman'})]}));
+    children.push(new D.Paragraph({spacing:{after:100},children:[new D.TextRun({text:'Категория слушателей: '+data.audience,size:24,font:'Times New Roman'})]}));
+    children.push(new D.Paragraph({spacing:{after:100},children:[new D.TextRun({text:'Объем программы: '+data.hours+' академических часов',size:24,font:'Times New Roman'})]}));
+
+    var planRows=[new D.TableRow({children:['№','Наименование занятий','Всего','Лекции','Практика','Форма контроля'].map(function(h){return new D.TableCell({children:[new D.Paragraph({children:[new D.TextRun({text:h,bold:true,size:20,font:'Times New Roman'})]})]})})})];
+    data.lessons.forEach(function(l){
+      planRows.push(new D.TableRow({children:[
+        new D.TableCell({children:[new D.Paragraph({children:[new D.TextRun({text:String(l.num),size:20,font:'Times New Roman'})]})]}),
+        new D.TableCell({children:[new D.Paragraph({children:[new D.TextRun({text:l.title,size:20,font:'Times New Roman'})]})]}),
+        new D.TableCell({children:[new D.Paragraph({children:[new D.TextRun({text:'4',size:20,font:'Times New Roman'})]})]}),
+        new D.TableCell({children:[new D.Paragraph({children:[new D.TextRun({text:'2',size:20,font:'Times New Roman'})]})]}),
+        new D.TableCell({children:[new D.Paragraph({children:[new D.TextRun({text:'2',size:20,font:'Times New Roman'})]})]}),
+        new D.TableCell({children:[new D.Paragraph({children:[new D.TextRun({text:l.control,size:20,font:'Times New Roman'})]})]})
+      ]}));
+    });
+    children.push(new D.Table({rows:planRows}));
+    children.push(new D.Paragraph({children:[new D.PageBreak()]}));
+
+    children.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_1,spacing:{after:200},children:[new D.TextRun({text:'I. Пояснительная записка',bold:true,size:32,font:'Times New Roman'})]}));
+    children.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_2,children:[new D.TextRun({text:'1.1. Цели программы',bold:true,size:28,font:'Times New Roman'})]}));
+    children.push(new D.Paragraph({spacing:{after:200},children:[new D.TextRun({text:data.purpose,size:24,font:'Times New Roman'})]}));
+    children.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_2,children:[new D.TextRun({text:'1.2. Задачи программы',bold:true,size:28,font:'Times New Roman'})]}));
+    data.tasks.forEach(function(t){children.push(new D.Paragraph({bullet:{level:0},spacing:{after:100},children:[new D.TextRun({text:t,size:24,font:'Times New Roman'})]}))});
+    children.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_2,children:[new D.TextRun({text:'1.3. Актуальность',bold:true,size:28,font:'Times New Roman'})]}));
+    children.push(new D.Paragraph({spacing:{after:200},children:[new D.TextRun({text:data.relevance,size:24,font:'Times New Roman'})]}));
+    children.push(new D.Paragraph({children:[new D.PageBreak()]}));
+
+    children.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_1,spacing:{after:200},children:[new D.TextRun({text:'II. Требования к уровню освоения',bold:true,size:32,font:'Times New Roman'})]}));
+    children.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_2,children:[new D.TextRun({text:'Знать:',bold:true,size:28,font:'Times New Roman'})]}));
+    data.must_know.forEach(function(k){children.push(new D.Paragraph({bullet:{level:0},spacing:{after:100},children:[new D.TextRun({text:k,size:24,font:'Times New Roman'})]}))});
+    children.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_2,children:[new D.TextRun({text:'Уметь и владеть:',bold:true,size:28,font:'Times New Roman'})]}));
+    data.must_be_able.forEach(function(a){children.push(new D.Paragraph({bullet:{level:0},spacing:{after:100},children:[new D.TextRun({text:a,size:24,font:'Times New Roman'})]}))});
+    children.push(new D.Paragraph({children:[new D.PageBreak()]}));
+
+    children.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_1,spacing:{after:200},children:[new D.TextRun({text:'V. Содержание программы',bold:true,size:32,font:'Times New Roman'})]}));
+    data.lessons.forEach(function(l){
+      children.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_2,spacing:{after:100},children:[new D.TextRun({text:'Занятие '+l.num+'. '+l.title+' (4 часа)',bold:true,size:28,font:'Times New Roman'})]}));
+      l.topics.forEach(function(t){
+        children.push(new D.Paragraph({spacing:{after:100},children:[new D.TextRun({text:'Тема '+t.num+'. '+t.title,bold:true,size:24,font:'Times New Roman'})]}));
+        if(t.content) children.push(new D.Paragraph({spacing:{after:200},children:[new D.TextRun({text:t.content,size:24,font:'Times New Roman'})]}));
+      });
+      if(l.questions.filter(Boolean).length){
+        children.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_3,children:[new D.TextRun({text:'Контрольные вопросы:',bold:true,size:24,font:'Times New Roman'})]}));
+        l.questions.filter(Boolean).forEach(function(q){children.push(new D.Paragraph({bullet:{level:0},spacing:{after:100},children:[new D.TextRun({text:q,size:24,font:'Times New Roman'})]}))});
+      }
+    });
+
+    var doc=new D.Document({sections:[{children:children}]});
+    D.Packer.toBlob(doc).then(function(blob){
+      if(typeof saveAs==='function'){saveAs(blob,data.name+'.docx')}
+      else{var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=data.name+'.docx';a.click()}
+      showMsg('ok','Word-документ скачан!');
+    });
+  }catch(e){showMsg('err','Ошибка: '+e.message);console.error(e)}
+}
+
+updateLessons();
+</script>
+</body>
+</html>
