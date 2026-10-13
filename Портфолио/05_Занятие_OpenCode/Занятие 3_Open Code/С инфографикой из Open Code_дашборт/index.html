@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Занятие 3 — OpenCode: от знакомства до анализа данных</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: #f8f9fa;
+    color: #1a1a2e;
+    line-height: 1.6;
+    padding: 20px;
+  }
+  .container { max-width: 1000px; margin: 0 auto; }
+  h1 {
+    font-size: 1.8em;
+    margin-bottom: 4px;
+    color: #16213e;
+  }
+  .subtitle {
+    color: #555;
+    margin-bottom: 20px;
+    font-size: 0.95em;
+  }
+  .tabs {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 0;
+  }
+  .tab-btn {
+    padding: 10px 18px;
+    background: #e9ecef;
+    border: none;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 500;
+    color: #495057;
+    transition: background 0.15s, color 0.15s;
+  }
+  .tab-btn:hover { background: #dee2e6; }
+  .tab-btn.active {
+    background: #1a1a2e;
+    color: #fff;
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  h2 {
+    font-size: 1.4em;
+    margin: 20px 0 12px;
+    color: #16213e;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 6px;
+  }
+  h3 {
+    font-size: 1.15em;
+    margin: 16px 0 8px;
+    color: #2d3436;
+  }
+  h4 {
+    font-size: 1em;
+    margin: 12px 0 6px;
+    color: #444;
+  }
+  p { margin: 0 0 10px; }
+
+  .section-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .section-card h3 { margin-top: 0; }
+
+  ul, ol { padding-left: 22px; margin: 8px 0 14px; }
+  li { margin-bottom: 4px; }
+
+  .prompt-block {
+    background: #f1f3f5;
+    border-left: 4px solid #1a1a2e;
+    padding: 14px 16px;
+    margin: 10px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 0.95em;
+    white-space: pre-wrap;
+    font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+    overflow-x: auto;
+  }
+  .prompt-block .label {
+    display: inline-block;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.78em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #fff;
+    background: #1a1a2e;
+    padding: 2px 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  .prompt-block .label.qwen { background: #6c5ce7; }
+  .prompt-block .label.opencode { background: #0984e3; }
+
+  .files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 8px 0;
+  }
+  .files-list a {
+    color: #0984e3;
+    text-decoration: none;
+    padding: 3px 0;
+  }
+  .files-list a:hover { text-decoration: underline; }
+
+  .step { margin-bottom: 14px; }
+  .step-num {
+    display: inline-block;
+    font-weight: 700;
+    color: #1a1a2e;
+    min-width: 20px;
+  }
+
+  .note {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 10px 14px;
+    margin: 10px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 0.92em;
+  }
+  .tip {
+    background: #d4edda;
+    border-left: 4px solid #28a745;
+    padding: 10px 14px;
+    margin: 10px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 0.92em;
+  }
+
+  .prompt-examples {
+    list-style: none;
+    padding: 0;
+  }
+  .prompt-examples li {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+  }
+  .prompt-examples li code {
+    font-weight: 600;
+    color: #1a1a2e;
+  }
+
+  .infogrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 380px));
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .infogrid a {
+    display: block;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,.12);
+    transition: transform .15s, box-shadow .15s;
+    text-decoration: none;
+  }
+  .infogrid a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,.18);
+  }
+  .infogrid a img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .infogrid a .ilabel {
+    display: block;
+    padding: 6px 10px;
+    font-size: 0.82em;
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 16px;
+    margin-bottom: 14px;
+    font-size: 0.92em;
+  }
+  .meta-grid dt { color: #666; font-weight: 600; }
+  .meta-grid dd { margin: 0; }
+
+  @media (max-width: 640px) {
+    body { padding: 12px; }
+    .tab-btn { padding: 8px 12px; font-size: 0.82em; }
+    .section-card { padding: 14px 16px; }
+    h1 { font-size: 1.4em; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Занятие 3. Open Code: от знакомства до анализа данных</h1>
+<p class="subtitle">Методическое пособие для преподавателя — 4 блока, 45 минут каждый</p>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="overview">Обзор</button>
+  <button class="tab-btn" data-tab="block1">Блок 1</button>
+  <button class="tab-btn" data-tab="block2">Блок 2</button>
+  <button class="tab-btn" data-tab="block3">Блок 3</button>
+  <button class="tab-btn" data-tab="block4">Блок 4</button>
+</div>
+
+<div class="tab-content active" id="tab-overview">
+
+  <div class="section-card">
+    <h3>О занятии</h3>
+    <p>Практическое занятие по работе с OpenCode Desktop. Студенты последовательно осваивают инструмент: от установки и первых запросов до анализа реальных файлов — папок, документов и таблиц Excel.</p>
+    <div class="meta-grid">
+      <dt>Длительность</dt><dd>180 мин (4 блока × 45 мин)</dd>
+      <dt>Уровень</dt><dd>с нуля</dd>
+      <dt>Формат</dt><dd>очный, с демонстрацией и самостоятельной работой</dd>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>Что нужно подготовить</h3>
+    <ol>
+      <li>Компьютер с Windows, интернет</li>
+      <li>Папка для сортировки: 10–15 файлов разных типов (.docx, .jpg, .pdf, .txt) вперемешку</li>
+      <li>2–3 договора / инструкции в формате .docx или .txt</li>
+      <li>Excel-таблица (до 100 строк)</li>
+    </ol>
+  </div>
+
+  <div class="section-card">
+    <h3>Инфографика занятия</h3>
+    <div class="infogrid">
+      <a href="infographics/block1_opencode.png" target="_blank">
+        <img src="infographics/block1_opencode.png" alt="Блок 1">
+        <span class="ilabel" style="background:#0984e3;">Блок 1 — OpenCode</span>
+      </a>
+      <a href="infographics/block2_files.png" target="_blank">
+        <img src="infographics/block2_files.png" alt="Блок 2">
+        <span class="ilabel" style="background:#00c896;">Блок 2 — Папки</span>
+      </a>
+      <a href="infographics/block3_documents.png" target="_blank">
+        <img src="infographics/block3_documents.png" alt="Блок 3">
+        <span class="ilabel" style="background:#8250dc;">Блок 3 — Документы</span>
+      </a>
+      <a href="infographics/block4_excel.png" target="_blank">
+        <img src="infographics/block4_excel.png" alt="Блок 4">
+        <span class="ilabel" style="background:#ffaa32;">Блок 4 — Excel</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>Навигация по блокам</h3>
+    <table style="width:100%; border-collapse:collapse;">
+      <tr style="border-bottom:2px solid #dee2e6;">
+        <th style="text-align:left;padding:6px 10px;">Блок</th>
+        <th style="text-align:left;padding:6px 10px;">Тема</th>
+        <th style="text-align:left;padding:6px 10px;">Время</th>
+      </tr>
+      <tr style="border-bottom:1px solid #eee;">
+        <td style="padding:6px 10px;"><strong>Блок 1</strong></td>
+        <td style="padding:6px 10px;">Знакомство с OpenCode Desktop</td>
+        <td style="padding:6px 10px;">45 мин</td>
+      </tr>
+      <tr style="border-bottom:1px solid #eee;">
+        <td style="padding:6px 10px;"><strong>Блок 2</strong></td>
+        <td style="padding:6px 10px;">Порядок в папках</td>
+        <td style="padding:6px 10px;">45 мин</td>
+      </tr>
+      <tr style="border-bottom:1px solid #eee;">
+        <td style="padding:6px 10px;"><strong>Блок 3</strong></td>
+        <td style="padding:6px 10px;">Анализ текстовых документов</td>
+        <td style="padding:6px 10px;">45 мин</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 10px;"><strong>Блок 4</strong></td>
+        <td style="padding:6px 10px;">Анализ таблиц Excel</td>
+        <td style="padding:6px 10px;">45 мин</td>
+      </tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- ========== БЛОК 1 ========== -->
+<div class="tab-content" id="tab-block1">
+
+  <div class="section-card">
+    <h3>Блок 1. Знакомство с OpenCode Desktop</h3>
+    <div class="meta-grid">
+      <dt>Длительность</dt><dd>45–60 мин</dd>
+      <dt>Разделы</dt><dd>1.1–1.6</dd>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>Конспект занятия</h3>
+
+    <h4>1.1. Скачиваем и устанавливаем OpenCode Desktop (10 мин)</h4>
+    <div class="step"><span class="step-num">Шаг 1.</span> Открой браузер (Chrome, Edge или Яндекс).</div>
+    <div class="step"><span class="step-num">Шаг 2.</span> В адресную строку введи: <code>opencode.ai/download</code></div>
+    <div class="step"><span class="step-num">Шаг 3.</span> На странице найди «OpenCode Desktop (Beta)» и кнопку «Windows (x64)» — нажми.</div>
+    <div class="step"><span class="step-num">Шаг 4.</span> Открой папку Загрузки → запусти установщик → Далее / Next → Готово.</div>
+
+    <h4>1.2. Запускаем и знакомимся с интерфейсом (7 мин)</h4>
+    <div class="step"><span class="step-num">1.</span> Открой OpenCode с рабочего стола или из меню Пуск.</div>
+    <div class="step"><span class="step-num">2.</span> Дождись загрузки. Если предложат войти (Sign in) — выбери «Пропустить».</div>
+    <div class="step"><span class="step-num">3.</span> Нажми «New Session» или «+» — откроется окно чата.</div>
+    <div class="step"><span class="step-num">4.</span> Оставь модель по умолчанию (Default / Auto).</div>
+    <p><strong>Интерфейс:</strong> слева — файлы проекта; «+» — новый проект; «Открыть проект» — рабочая папка; справа — ход работы. Режимы: <strong>Build</strong> (основной) и <strong>Plan</strong> (планирование).</p>
+
+    <h4>1.3. Первые запросы (13 мин)</h4>
+    <ul>
+      <li><code>«Привет! Как тебя зовут и что ты умеешь?»</code></li>
+      <li><code>«Покажи, как выглядит интерфейс: что за кнопки и панели вокруг?»</code></li>
+      <li><code>«Сколько сейчас времени и какой сегодня день недели?»</code></li>
+      <li><code>«Что ты можешь сделать? Назови 5 примеров»</code></li>
+    </ul>
+
+    <h4>1.4. Открываем рабочую папку (10 мин)</h4>
+    <div class="step"><span class="step-num">1.</span> <code>«В какой папке на компьютере я сейчас нахожусь?»</code></div>
+    <div class="step"><span class="step-num">2.</span> <code>«Открой папку C:\Мои документы\Рабочая и покажи, что в ней есть»</code></div>
+    <div class="step"><span class="step-num">3.</span> <code>«Сколько всего файлов и папок внутри?»</code></div>
+
+    <h4>1.5. Система подтверждений и работа с сессиями (5 мин)</h4>
+    <p>OpenCode никогда не выполняет действия без разрешения. Видишь запрос — читай, что будет сделано. Согласен — «Разрешить», сомневаешься — «Нет».</p>
+    <p><strong>Одна задача — одна сессия.</strong> Закончил задачу → начни новую через <code>+</code> или <code>/new</code>.</p>
+
+    <h4>1.6. AGENTS.md — правила для проекта (2 мин)</h4>
+    <p>AGENTS.md — файл с инструкциями, как OpenCode должен работать с твоим проектом. Лежит в корне проекта. Можно создать командой <code>/init</code>. Глобальные правила — в <code>C:\Users\user\.config\opencode\AGENTS.md</code>.</p>
+  </div>
+
+  <!-- ПРОМПТЫ -->
+  <div class="section-card">
+    <h3>Промпты для блока</h3>
+
+    <p><strong>Системный промпт</strong> — вводится в OpenCode для сравнения и дополнения конспекта Блока 1:</p>
+    <div class="prompt-block">
+      <span class="label opencode">OpenCode</span>
+Ты — методист, разрабатывающий учебные материалы. У тебя есть два файла:
+Блок_1_Знакомство_с_OpenCode.docx — готовый конспект занятия (4 раздела: установка, запуск, первые запросы, открытие папки)
+Из сессии Opencode_как эффективно работать со мной_и из других файлов.docx — расшифровка сессии с OpenCode, где обсуждаются интерфейс, режимы работы, подтверждения, сессии, AGENTS.md, формула запроса
+
+Задача:
+- Сравни содержимое обоих файлов
+- Найди в файле 2 информацию, относящуюся к Блоку 1 (знакомство, установка, интерфейс, первые шаги)
+- Добавь эту информацию в соответствующие разделы файла 1. Также добавь новые разделы, если найдёшь важные темы, которых нет в блоке 1 (например, «Система подтверждений», «Одна задача — одна сессия», «AGENTS.md»)
+- Сохрани обновлённый файл
+
+Требования к стилю:
+- Простой язык, как для новичка
+- Сохрани нумерацию разделов (1.1, 1.2 и т.д.)
+- Добавленные фрагменты должны логически встраиваться в существующую структуру
+- Если информация из файла 2 относится к нескольким разделам — продублируй релевантные части
+    </div>
+
+    <div class="note">
+      <strong>Примечание:</strong> Этот же промпт был выполнен в QWEN для сравнения результатов от разных моделей.
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>Инфографика блока</h3>
+    <div class="infogrid">
+      <a href="infographics/block1_opencode.png" target="_blank">
+        <img src="infographics/block1_opencode.png" alt="Инфографика Блок 1">
+        <span class="ilabel" style="background:#0984e3;">Знакомство с OpenCode</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>Файлы и результаты</h3>
+    <div class="files-list">
+      <a href="Блок 1/Блок_1_Знакомство_с_OpenCode.docx" target="_blank">📄 Блок_1_Знакомство_с_OpenCode.docx — конспект занятия</a>
+      <a href="Блок 1/Блок_1_Знакомство_с_OpenCode_из QWEN.docx" target="_blank">📄 Блок_1_Знакомство_с_OpenCode_из QWEN.docx — версия от QWEN</a>
+      <a href="Из сессии Opencode_как эффективно работать со мной_и из других файлов.docx" target="_blank">📄 Из сессии Opencode_как эффективно работать со мной.docx — расшифровка сессии</a>
+      <a href="Промпты к Занятию 3.docx" target="_blank">📄 Промпты к Занятию 3.docx — все промпты занятия</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ========== БЛОК 2 ========== -->
+<div class="tab-content" id="tab-block2">
+
+  <div class="section-card">
+    <h3>Блок 2. Порядок в папках</h3>
+    <div class="meta-grid">
+      <dt>Длительность</dt><dd>45 мин</dd>
+      <dt>Разделы</dt><dd>2.1–2.5</dd>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>Конспект занятия</h3>
+
+    <h4>2.1. Смотрим, что лежит в папках (10 мин)</h4>
+    <div class="step"><code>«Покажи всю структуру папок и файлов — что у меня тут есть?»</code></div>
+    <div class="step"><code>«Покажи только файлы, сгруппируй по расширениям (.docx, .jpg, .pdf)»</code></div>
+
+    <h4>2.2. Сортируем файлы по типам (15 мин)</h4>
+    <div class="step"><code>«Отсортируй все файлы по типам: документы (.docx, .pdf, .txt) сложи в папку Документы, изображения (.jpg, .png) в папку Изображения, архивы (.zip, .rar) в папку Архивы, остальные — в Прочее»</code></div>
+    <p>OpenCode попросит разрешение — нажми «Разрешить» (это безопасно, файлы только перемещаются).</p>
+
+    <h4>2.3. Проверяем результат (5 мин)</h4>
+    <ul>
+      <li><code>«Покажи новую структуру папок — что изменилось?»</code></li>
+      <li><code>«Сколько файлов в каждой папке?»</code></li>
+      <li><code>«Есть ли дубликаты одинаковых файлов?»</code></li>
+    </ul>
+
+    <h4>2.4. Бонус: аудит папки и дашборд (15 мин)</h4>
+    <div class="step"><strong>Шаг 1.</strong> <code>«Проанализируй эту папку: сколько всего файлов, какие типы файлов, сколько места они занимают. Покажи топ-5 самых больших файлов»</code></div>
+    <div class="step"><strong>Шаг 2.</strong> <code>«Сделай из этого красивый HTML-дашборд с диаграммами по типам файлов и списком самых больших файлов. Тёмная тема. Сохрани как audit.html и открой в браузере»</code></div>
+    <div class="step"><strong>Шаг 3.</strong> <code>«Найди и удали все пустые папки»</code></div>
+    <div class="step"><strong>Шаг 4 (бонус).</strong> <code>«Сделай из анализа таблицу Excel с выводами и рекомендациями по организации»</code></div>
+
+    <h4>2.5. Как правильно формулировать запросы (5 мин)</h4>
+    <p>Формула хорошего запроса из 5 частей:</p>
+    <ul>
+      <li><strong>Цель</strong> — что нужно сделать</li>
+      <li><strong>Контекст</strong> — подробности и примеры</li>
+      <li><strong>Ограничения</strong> — чего не делать</li>
+      <li><strong>Критерии качества</strong> — что считать хорошим результатом</li>
+      <li><strong>Формат ответа</strong> — как вернуть результат</li>
+    </ul>
+    <p><em>«Проанализируй папку Загрузки, покажи что занимает больше всего места, типы файлов и топ-10 самых больших. Сделай HTML-дашборд с диаграммами. Тёмная тема.»</em></p>
+  </div>
+
+  <div class="section-card">
+    <h3>Промпты для блока</h3>
+
+    <p><strong>1. Системный промпт</strong> (OpenCode) — сравнение и дополнение конспекта:</p>
+    <div class="prompt-block">
+      <span class="label opencode">OpenCode</span>
+Ты — методист, разрабатывающий учебные материалы. У тебя есть два файла:
+Блок_2_Порядок_в_папках.docx — готовый конспект занятия
+Из сессии Opencode_как эффективно работать со мной_и из других файлов.docx — расшифровка сессии
+
+Задача:
+- Сравни содержимое обоих файлов
+- Найди в файле 2 информацию, относящуюся к Блоку 2
+- Добавь эту информацию в соответствующие разделы файла 1. Также добавь новые разделы, если найдёшь важные темы, которых нет в блоке 2
+- Сохрани обновлённый файл
+    </div>
+
+    <p><strong>2. Анализ содержимого папки</strong> (Qwen) — промпт для подсчёта статистики:</p>
+    <div class="prompt-block">
+      <span class="label qwen">Qwen</span>
+Ты — профессиональный ИИ-аналитик файловых систем. Твоя задача — провести детальный анализ содержимого указанной папки C:\Users\user\Downloads\Блок 2 и предоставить структурированный, точный и легко читаемый отчет.
+
+При получении запроса на анализ директории ты должен использовать доступные инструменты для сбора данных и сформировать отчет по структуре:
+1. Общая статистика (количество файлов и подпапок)
+2. Распределение по типам файлов (группировка по расширениям)
+3. Общий объем занимаемого места
+4. Топ-5 самых больших файлов
+
+Правила: используй Markdown, не выдумывай данные, отвечай на русском.
+    </div>
+
+    <p><strong>3. Навести порядок в папке</strong> (OpenCode) — два этапа (анализ и реорганизация):</p>
+    <div class="prompt-block">
+      <span class="label opencode">OpenCode</span>
+Ты — ассистент по организации файлов. Нужно навести порядок в папке:
+C:\Users\user\Downloads\Блок 2
+В ней сейчас 394 файла в 71 подпапке — полный хаос.
+
+Что нужно сделать в два этапа:
+
+Этап 1 — Анализ (только посмотреть, ничего не менять):
+1. Просканируй всю папку Блок 2 и все её подпапки
+2. Покажи мне структуру: какие папки есть, какие типы файлов, что повторяется
+3. Найди дубликаты файлов (одинаковые имя + размер)
+4. Предложи план реорганизации
+
+Этап 2 (только после моего подтверждения):
+1. Удали дубликаты (оставить по одной копии)
+2. Удали пустые папки
+3. Создай папку КПК с предложенной структурой
+4. Разложи файлы по папкам внутри КПК
+
+Важно: ничего не удаляй без моего согласия, каждый шаг показывай и спрашивай разрешение.
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>Инфографика блока</h3>
+    <div class="infogrid">
+      <a href="infographics/block2_files.png" target="_blank">
+        <img src="infographics/block2_files.png" alt="Инфографика Блок 2">
+        <span class="ilabel" style="background:#00c896;">Порядок в папках</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>Файлы и результаты</h3>
+    <div class="files-list">
+      <a href="Блок 2/Блок_2_Порядок_в_папках.docx" target="_blank">📄 Блок_2_Порядок_в_папках.docx — конспект занятия</a>
+      <a href="Блок 2/1. Сетевые сервисы.pptx" target="_blank">📄 1. Сетевые сервисы.pptx — дополнительная презентация</a>
+      <a href="Блок 2/КПК/" target="_blank">📁 КПК/ — учебные материалы курса</a>
+      <a href="Из сессии Opencode_как эффективно работать со мной_и из других файлов.docx" target="_blank">📄 Из сессии Opencode.docx — расшифровка сессии</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ========== БЛОК 3 ========== -->
+<div class="tab-content" id="tab-block3">
+
+  <div class="section-card">
+    <h3>Блок 3. Анализ текстовых документов</h3>
+    <div class="meta-grid">
+      <dt>Длительность</dt><dd>45 мин</dd>
+      <dt>Разделы</dt><dd>3.1–3.5</dd>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>Конспект занятия</h3>
+
+    <p><strong>Три уровня задач с документами:</strong></p>
+    <ul>
+      <li><strong>Уровень 1</strong> — текстовый ответ (спрашиваешь — отвечает)</li>
+      <li><strong>Уровень 2</strong> — одно действие с файлом (прочитать, извлечь данные)</li>
+      <li><strong>Уровень 3</strong> — многоступенчатая задача (найти → прочитать → сравнить → сделать сводку)</li>
+    </ul>
+
+    <h4>3.1. Находим все документы (5 мин)</h4>
+    <div class="step"><code>«Найди в этой папке все договоры — файлы, в названии которых есть слово договор или contract»</code></div>
+    <div class="step"><code>«Найди все файлы с расширением .docx в этой папке»</code></div>
+
+    <h4>3.2. Читаем документ и извлекаем главное (15 мин)</h4>
+    <div class="step"><code>«Прочитай файл Договор_поставки.docx и выдели: 1. Стороны договора 2. Сумму 3. Срок действия 4. Предмет договора 5. Особые условия (если есть)»</code></div>
+
+    <h4>3.3. Сравниваем два документа (10 мин)</h4>
+    <div class="step"><code>«Сравни файлы Договор_поставки.docx и Договор_услуг.docx. Покажи основные различия: суммы, сроки, условия»</code></div>
+
+    <h4>3.4. Составляем сводку по всем документам (10 мин)</h4>
+    <div class="step"><code>«Составь сводную таблицу по всем найденным документам: название файла, стороны, сумма, срок, статус (действует / истек). Если данных нет — напиши нет данных»</code></div>
+    <div class="step"><strong>Бонус:</strong> <code>«Найди во всех документах упоминания НДС, пени, штрафов — выпиши отдельно»</code></div>
+
+    <h4>3.5. Как улучшить запросы для анализа документов (5 мин)</h4>
+    <p>Пример хорошего запроса для этого блока:</p>
+    <div class="prompt-block">
+«Прочитай все договоры в этой папке. Для каждого договора выдели: стороны, сумму, срок, предмет договора. Если данных нет — пиши нет данных. Результат верни в виде таблицы в чате.»
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>Промпты для блока</h3>
+
+    <p><strong>1. Системный промпт</strong> (OpenCode) — сравнение и дополнение конспекта Блока 3:</p>
+    <div class="prompt-block">
+      <span class="label opencode">OpenCode</span>
+Ты — методист, разрабатывающий учебные материалы. У тебя есть два файла:
+Блок_3_Анализ_текстовых_документов.docx — готовый конспект занятия
+Из сессии Opencode_как эффективно работать со мной_и из других файлов.docx — расшифровка сессии
+
+Задача:
+- Сравни содержимое обоих файлов
+- Найди в файле 2 информацию, относящуюся к Блоку 3
+- Добавь эту информацию в соответствующие разделы файла 1
+- Сохрани обновлённый файл
+    </div>
+
+    <p><strong>2. Промпт для анализа договора</strong> — практическое задание:</p>
+    <div class="prompt-block">
+Прочитай файл Договор АНО  О.Б. Видео  2024.docx и выдели:
+1. Стороны договора
+2. Сумма
+3. Срок действия
+4. Предмет договора
+5. Особые условия (если есть)
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>Инфографика блока</h3>
+    <div class="infogrid">
+      <a href="infographics/block3_documents.png" target="_blank">
+        <img src="infographics/block3_documents.png" alt="Инфографика Блок 3">
+        <span class="ilabel" style="background:#8250dc;">Анализ документов</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>Файлы и результаты</h3>
+    <div class="files-list">
+      <a href="Блок 3/Блок_3_Анализ_текстовых_документов.docx" target="_blank">📄 Блок_3_Анализ_текстовых_документов.docx — конспект занятия</a>
+      <a href="Блок 3/Договор АНО  О.Б. Видео  2024.docx" target="_blank">📄 Договор АНО О.Б. Видео 2024.docx — образец договора</a>
+      <a href="Блок 3/!договор _Видео_ 2024_шаблон.doc" target="_blank">📄 !договор _Видео_ 2024_шаблон.doc — шаблон договора</a>
+      <a href="Из сессии Opencode_как эффективно работать со мной_и из других файлов.docx" target="_blank">📄 Из сессии Opencode.docx — расшифровка сессии</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ========== БЛОК 4 ========== -->
+<div class="tab-content" id="tab-block4">
+
+  <div class="section-card">
+    <h3>Блок 4. Анализ таблиц Excel</h3>
+    <div class="meta-grid">
+      <dt>Длительность</dt><dd>45 мин</dd>
+      <dt>Разделы</dt><dd>4.1–4.5</dd>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>Конспект занятия</h3>
+
+    <h4>4.1. Превращаем Excel в CSV (10 мин)</h4>
+    <p>OpenCode не читает .xlsx напрямую. Конвертируем: Файл → Сохранить как → тип «CSV (разделители — запятые)».</p>
+
+    <h4>4.2. Читаем CSV — знакомимся с данными (10 мин)</h4>
+    <ul>
+      <li><code>«Прочитай файл tablica.csv и покажи первые 10 строк»</code></li>
+      <li><code>«Сколько всего строк и столбцов в таблице?»</code></li>
+      <li><code>«Как называются столбцы?»</code></li>
+      <li><code>«Есть ли пустые ячейки? В каких столбцах?»</code></li>
+    </ul>
+
+    <h4>4.3. Анализируем данные (15 мин)</h4>
+    <p><strong>Итоги:</strong> <code>«Посчитай общую сумму по столбцу Сумма»</code></p>
+    <p><strong>Фильтрация:</strong> <code>«Покажи только те строки, где сумма больше 10 000»</code></p>
+    <p><strong>Аномалии:</strong> <code>«Найди дубликаты по столбцу Номер заказа»</code></p>
+    <p><strong>Группировка:</strong> <code>«Сгруппируй данные по столбцу Категория и покажи сумму по каждой категории»</code></p>
+
+    <h4>4.4. Сложный пример: объединяем две таблицы (5 мин)</h4>
+    <div class="prompt-block">
+«Возьми из обоих CSV-файлов столбец Расходы и сделай новую таблицу с единственным листом, где будут расходы за все 24 месяца. После этого сделай Markdown-файл, в который добавь анализ моих расходов за два года и тренды, которые ты определишь»
+    </div>
+
+    <h4>4.5. Что еще можно автоматизировать (5 мин)</h4>
+    <p>Идеи для самостоятельной работы:</p>
+    <ul>
+      <li><code>«Создай отчет по таблице и сохрани его в новый файл»</code></li>
+      <li><code>«Объедини две таблицы в одну»</code></li>
+      <li><code>«Сконвертируй таблицу из CSV в Excel с оформлением»</code></li>
+    </ul>
+  </div>
+
+  <div class="section-card">
+    <h3>Промпты для блока</h3>
+
+    <p><strong>1. Системный промпт</strong> (OpenCode) — сравнение и дополнение конспекта Блока 4:</p>
+    <div class="prompt-block">
+      <span class="label opencode">OpenCode</span>
+Ты — методист, разрабатывающий учебные материалы. У тебя есть два файла:
+Блок_4_Анализ_таблиц_Excel.docx — готовый конспект занятия
+Из сессии Opencode_как эффективно работать со мной_и из других файлов.docx — расшифровка сессии
+
+Задача: сравни содержимое обоих файлов, найди в файле 2 информацию, относящуюся к Блоку 4, добавь в соответствующие разделы файла 1. Сохрани обновлённый файл.
+    </div>
+
+    <p><strong>2. Системный промпт для анализа статистики по группам</strong> (из сессии):</p>
+    <div class="prompt-block">
+      <span class="label opencode">OpenCode</span>
+Ты — аналитик данных. Твоя задача — проанализировать два Excel-файла со статистикой движения слушателей по типам групп за периоды Октябрь–Апрель двух учебных годов.
+
+Источники данных:
+Типы групп_04.2024.xls — период 15.10.2023 – 26.04.2024
+Типы групп_04.2025.xls — период 15.10.2024 – 30.04.2025
+
+Задачи анализа:
+1. Проверить сходимость баланса
+2. Сравнить динамику по каждой площадке (2024 vs 2025)
+3. Сводная таблица по типам групп
+4. Анализ изменений в наборах групп
+5. Распределение по классам (возрастной состав)
+6. Выводы (3–5 ключевых)
+
+Формат ответа: все таблицы — в Markdown, числа — до двух знаков, проценты — ±X,XX%.
+    </div>
+
+    <div class="note">
+      <strong>Уточнение к промпту:</strong> после выполнения был добавлен запрос «Все таблицы — в Excel. Сделать визуализацию в Excel» и вопрос «Объясни простым языком, как для ребёнка 10 лет, что такое дашборт».
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>Инфографика блока</h3>
+    <div class="infogrid">
+      <a href="infographics/block4_excel.png" target="_blank">
+        <img src="infographics/block4_excel.png" alt="Инфографика Блок 4">
+        <span class="ilabel" style="background:#ffaa32;">Анализ таблиц Excel</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>Файлы и результаты</h3>
+    <h4>Анализ обзвона — графики (PNG)</h4>
+    <div class="files-list">
+      <a href="Блок 4/Анализ обзвона/01_обзвон_педагогами_сводка.png" target="_blank">📊 Обзвон педагогами — сводка</a>
+      <a href="Блок 4/Анализ обзвона/02_должники_детально.png" target="_blank">📊 Должники — детально</a>
+      <a href="Блок 4/Анализ обзвона/03_обзвон_по_площадкам.png" target="_blank">📊 Обзвон по площадкам</a>
+    </div>
+
+    <h4>Анализ численности 2024–2025</h4>
+    <div class="files-list">
+      <a href="Блок 4/Анализ численности 2024-2025/Анализ_2024_vs_2025.xlsx" target="_blank">📊 Анализ_2024_vs_2025.xlsx</a>
+      <a href="Блок 4/Анализ численности 2024-2025/Дашборд_2024_vs_2025.xlsx" target="_blank">📊 Дашборд_2024_vs_2025.xlsx</a>
+      <a href="Блок 4/Анализ численности 2024-2025/Диаграммы_типы_групп.xlsx" target="_blank">📊 Диаграммы_типы_групп.xlsx</a>
+      <a href="Блок 4/Анализ численности 2024-2025/dashboard.html" target="_blank">📊 dashboard.html — дашборд</a>
+    </div>
+
+    <h4>Исходные данные и код</h4>
+    <div class="files-list">
+      <a href="Блок 4/Анализ обзвона/04-06-24_список-обзон-оплата сентября.csv" target="_blank">📄 CSV — список обзвона</a>
+      <a href="Блок 4/Анализ обзвона/04_06_24_анализ_обзвона.xlsx" target="_blank">📊 Анализ обзвона.xlsx</a>
+      <a href="Блок 4/вспомогательные файлы с кодом/analyze.py" target="_blank">🐍 analyze.py</a>
+      <a href="Блок 4/вспомогательные файлы с кодом/build_charts.py" target="_blank">🐍 build_charts.py</a>
+      <a href="Блок 4/вспомогательные файлы с кодом/build_dashboard.py" target="_blank">🐍 build_dashboard.py</a>
+      <a href="Блок 4/вспомогательные файлы с кодом/build_report.py" target="_blank">🐍 build_report.py</a>
+    </div>
+    <div class="files-list" style="margin-top:4px;">
+      <a href="Блок 4/Блок_4_Анализ_таблиц_Excel.docx" target="_blank">📄 Блок_4_Анализ_таблиц_Excel.docx — конспект занятия</a>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

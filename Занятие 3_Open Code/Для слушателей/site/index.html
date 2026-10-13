@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Занятие 3 — Практическое пособие по OpenCode</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f5f7fc;
+  --surface: #ffffff;
+  --primary: #4f6cff;
+  --primary-light: #eef1ff;
+  --primary-dark: #3a54e0;
+  --accent: #00b894;
+  --accent-light: #e6faf5;
+  --text: #1a1d2e;
+  --text-secondary: #6b7280;
+  --border: #e5e9f0;
+  --radius: 14px;
+  --shadow: 0 2px 12px rgba(79,108,255,0.08);
+  --shadow-hover: 0 8px 30px rgba(79,108,255,0.15);
+  --prompt-bg: #f0f4ff;
+  --prompt-border: #4f6cff;
+  --success: #00b894;
+  --practice-bg: #fffbeb;
+  --practice-border: #f59e0b;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); padding: 0 24px;
+}
+.header-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between; height: 60px;
+}
+.header-logo { font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px; color: var(--primary); }
+.header-logo i { font-size: 22px; }
+.header-nav { display: flex; gap: 4px; }
+.header-nav a {
+  text-decoration: none; color: var(--text-secondary); font-size: 13px; font-weight: 500;
+  padding: 8px 14px; border-radius: 8px; transition: all 0.2s;
+}
+.header-nav a:hover, .header-nav a.active { background: var(--primary-light); color: var(--primary); }
+
+.section { display: none; max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+.section.active { display: block; }
+
+.hero { text-align: center; padding: 60px 24px 40px; }
+.hero h1 { font-size: clamp(28px, 5vw, 48px); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 12px; }
+.hero h1 span { color: var(--primary); }
+.hero p { color: var(--text-secondary); font-size: 17px; max-width: 600px; margin: 0 auto 32px; }
+.hero-meta { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; font-size: 14px; color: var(--text-secondary); }
+.hero-meta i { margin-right: 6px; color: var(--primary); }
+
+.blocks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; max-width: 900px; margin: 0 auto; padding: 0 24px 48px; }
+.block-card {
+  background: var(--surface); border-radius: var(--radius); padding: 24px; cursor: pointer;
+  border: 1px solid var(--border); box-shadow: var(--shadow);
+  transition: all 0.3s cubic-bezier(.22,1,.36,1); text-align: center;
+}
+.block-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+.block-card .icon { font-size: 32px; margin-bottom: 12px; }
+.block-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.block-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+.block-card .badge { display: inline-block; margin-top: 10px; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+
+.block-header { margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid var(--border); }
+.block-header .back {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary);
+  cursor: pointer; margin-bottom: 16px; transition: color 0.2s; background: none; border: none; font-family: inherit;
+}
+.block-header .back:hover { color: var(--primary); }
+.block-header h2 { font-size: clamp(22px, 3.5vw, 32px); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 6px; }
+.block-header .goal { color: var(--text-secondary); font-size: 15px; margin-top: 8px; }
+.block-header .duration { display: inline-block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-top: 12px; }
+.block-header .duration i { margin-right: 6px; }
+
+.step { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 20px; overflow: hidden; }
+.step-header { padding: 20px 24px 0; display: flex; align-items: baseline; gap: 10px; }
+.step-number { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 20px; flex-shrink: 0; }
+.step-title { font-size: 16px; font-weight: 700; }
+.step-duration { font-size: 12px; color: var(--text-secondary); margin-left: auto; flex-shrink: 0; }
+.step-body { padding: 16px 24px 20px; font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+.step-body p { margin-bottom: 12px; }
+.step-body p:last-child { margin-bottom: 0; }
+
+.prompt {
+  background: var(--prompt-bg); border-left: 3px solid var(--prompt-border);
+  border-radius: 0 10px 10px 0; padding: 14px 16px; margin: 12px 0;
+  font-size: 14px; color: var(--text); display: flex; align-items: flex-start; gap: 10px;
+  cursor: pointer; transition: background 0.2s; position: relative;
+}
+.prompt:hover { background: #e8edff; }
+.prompt .copy-icon { flex-shrink: 0; color: var(--primary); font-size: 14px; margin-top: 2px; opacity: 0.5; transition: opacity 0.2s; }
+.prompt:hover .copy-icon { opacity: 1; }
+.prompt .copy-tooltip {
+  position: absolute; top: -30px; right: 10px; background: var(--text); color: white;
+  font-size: 11px; padding: 4px 10px; border-radius: 6px; opacity: 0; transition: opacity 0.2s; pointer-events: none;
+}
+.prompt .copy-tooltip.show { opacity: 1; }
+.prompt code { font-family: 'Inter', monospace; font-size: 13.5px; line-height: 1.5; flex: 1; }
+.prompt-label { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: var(--primary); margin-bottom: 4px; }
+
+.info-box {
+  background: var(--accent-light); border-radius: 10px; padding: 14px 18px; margin: 12px 0;
+  font-size: 13px; color: #0d7a5e; display: flex; align-items: flex-start; gap: 10px;
+}
+.info-box i { font-size: 16px; margin-top: 1px; flex-shrink: 0; }
+.info-box.warning { background: #fffbeb; color: #92400e; }
+.info-box.warning i { color: #f59e0b; }
+
+.result-box {
+  background: linear-gradient(135deg, var(--primary-light), #f8f9ff);
+  border-radius: var(--radius); padding: 24px; margin-top: 32px;
+  border: 1px solid rgba(79,108,255,0.15);
+}
+.result-box h3 { font-size: 16px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.result-box h3 i { color: var(--primary); }
+.result-box ul { list-style: none; padding: 0; }
+.result-box ul li { padding: 6px 0; font-size: 14px; display: flex; align-items: flex-start; gap: 10px; }
+.result-box ul li i { color: var(--success); font-size: 13px; margin-top: 4px; flex-shrink: 0; }
+
+.tip-box {
+  background: #f3f4f6; border-radius: 10px; padding: 14px 18px; margin: 12px 0;
+  font-size: 13px; color: var(--text-secondary); display: flex; align-items: flex-start; gap: 10px;
+}
+.tip-box i { color: var(--primary); font-size: 14px; margin-top: 2px; flex-shrink: 0; }
+
+.practice-box {
+  background: var(--surface); border: 2px solid #e0e7ff; border-radius: var(--radius);
+  padding: 24px; margin-top: 32px;
+}
+.practice-box h3 {
+  font-size: 16px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;
+}
+.practice-box h3 i { color: var(--primary); }
+.practice-box h3 .toggle-icon { margin-left: auto; font-size: 14px; color: var(--text-secondary); transition: transform 0.3s; }
+.practice-box.collapsed h3 .toggle-icon { transform: rotate(-90deg); }
+.practice-box > p { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+.practice-box .prompt { background: #f5f7ff; border-left-color: var(--primary); }
+.practice-box .prompt:hover { background: #e8edff; }
+.practice-box .prompt-label { color: var(--primary); }
+.practice-box .practice-body { overflow: hidden; transition: max-height 0.4s ease; }
+.practice-box.collapsed .practice-body { max-height: 0 !important; padding-top: 0; }
+.practice-box.collapsed .practice-body > * { display: none; }
+
+.system-prompt {
+  background: #f3f0ff !important; border-left-color: #8b5cf6 !important;
+}
+.system-prompt:hover { background: #ede9fe !important; }
+.system-prompt code { font-size: 13px; }
+.system-prompt .copy-icon { color: #8b5cf6 !important; }
+.system-prompt-label::before { content: "⚙️ "; font-size: 12px; }
+
+.footer { text-align: center; padding: 32px 24px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-secondary); }
+
+@media (max-width: 640px) {
+  .header-nav { gap: 2px; }
+  .header-nav a { font-size: 12px; padding: 6px 10px; }
+  .step-header { flex-wrap: wrap; }
+  .step-duration { margin-left: 0; width: 100%; }
+  .blocks-grid { grid-template-columns: 1fr; }
+}
+
+@media print {
+  .header { position: static; border: none; }
+  .header-nav { display: none; }
+  .section { display: block !important; padding: 20px; page-break-after: always; }
+  #section-home { display: block !important; }
+  .block-card { break-inside: avoid; }
+  .step { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+  .practice-box { break-inside: avoid; border: 1px solid #ccc; }
+  .practice-box.collapsed .practice-body { max-height: none !important; }
+  .practice-box.collapsed .practice-body > * { display: block; }
+  .practice-box h3 .toggle-icon { display: none; }
+  .prompt { break-inside: avoid; }
+  .footer { display: none; }
+  .back { display: none; }
+  .hero { padding: 20px; }
+  .blocks-grid { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-logo"><i class="fa-solid fa-robot"></i> OpenCode · Занятие 3</div>
+    <nav class="header-nav">
+      <a href="#" data-section="home" class="active">Главная</a>
+      <a href="#" data-section="block1">Блок 1</a>
+      <a href="#" data-section="block2">Блок 2</a>
+      <a href="#" data-section="block3">Блок 3</a>
+      <a href="#" data-section="block4">Блок 4</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===================== HOME ===================== -->
+<section class="section active" id="section-home">
+  <div class="hero">
+    <h1>Практическое пособие<br><span>по работе с OpenCode</span></h1>
+    <p>На этом занятии вы научитесь работать с ИИ-ассистентом OpenCode Desktop: от установки до анализа таблиц и документов.</p>
+    <div class="hero-meta">
+      <span><i class="fa-regular fa-clock"></i> 4 × 45 мин</span>
+      <span><i class="fa-regular fa-calendar"></i> 15.06.2026</span>
+      <span><i class="fa-regular fa-layer-group"></i> 4 блока</span>
+    </div>
+  </div>
+  <div class="blocks-grid">
+    <div class="block-card" onclick="showSection('block1')">
+      <div class="icon" style="color:#4f6cff">🚀</div>
+      <h3>Блок 1. Знакомство</h3>
+      <p>Установка, запуск, первые запросы, открытие папки</p>
+      <span class="badge" style="background:var(--primary-light);color:var(--primary)">45 мин</span>
+    </div>
+    <div class="block-card" onclick="showSection('block2')">
+      <div class="icon" style="color:#f59e0b">📂</div>
+      <h3>Блок 2. Порядок в папках</h3>
+      <p>Анализ структуры, сортировка файлов, удаление пустых папок</p>
+      <span class="badge" style="background:#fef3c7;color:#b45309">45 мин</span>
+    </div>
+    <div class="block-card" onclick="showSection('block3')">
+      <div class="icon" style="color:#8b5cf6">📄</div>
+      <h3>Блок 3. Анализ текстов</h3>
+      <p>Поиск, чтение, сравнение договоров, сводные таблицы</p>
+      <span class="badge" style="background:#f3e8ff;color:#7c3aed">45 мин</span>
+    </div>
+    <div class="block-card" onclick="showSection('block4')">
+      <div class="icon" style="color:#06b6d4">📊</div>
+      <h3>Блок 4. Анализ Excel</h3>
+      <p>Конвертация в CSV, чтение, фильтрация, группировка данных</p>
+      <span class="badge" style="background:#e0f2fe;color:#0369a1">45 мин</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== БЛОК 1 ===================== -->
+<section class="section" id="section-block1">
+  <div class="block-header">
+    <button class="back" onclick="showSection('home')"><i class="fa-solid fa-arrow-left"></i> На главную</button>
+    <h2>Блок 1. Знакомство с OpenCode Desktop</h2>
+    <div class="goal">Научиться устанавливать OpenCode, запускать сессию, делать первые запросы и открывать рабочую папку.</div>
+    <div class="duration"><i class="fa-regular fa-clock"></i> 45 мин · Уровень: с нуля</div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-number" style="background:var(--primary-light);color:var(--primary)">1.1</span>
+      <span class="step-title">Скачиваем и устанавливаем</span>
+      <span class="step-duration">10 мин</span>
+    </div>
+    <div class="step-body">
+      <p>Открой браузер, перейди на <strong>opencode.ai/download</strong>, скачай установщик для Windows и установи программу (жми «Далее», ничего не меняй).</p>
+      <div class="tip-box"><i class="fa-regular fa-lightbulb"></i> Если Windows спросит разрешение — нажми «Да». После установки на рабочем столе появится значок OpenCode.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-number" style="background:var(--primary-light);color:var(--primary)">1.2</span>
+      <span class="step-title">Запускаем OpenCode</span>
+      <span class="step-duration">5 мин</span>
+    </div>
+    <div class="step-body">
+      <p>Открой программу. Если появится предложение войти — выбери «Пропустить». Нажми «Новая сессия» / «New Session». Откроется окно чата.</p>
+      <div class="tip-box"><i class="fa-regular fa-lightbulb"></i> Модель можно оставить по умолчанию — программа подберёт сама.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-number" style="background:var(--primary-light);color:var(--primary)">1.3</span>
+      <span class="step-title">Первые запросы</span>
+      <span class="step-duration">15 мин</span>
+    </div>
+    <div class="step-body">
+      <p>Введи эти запросы по очереди. OpenCode будет отвечать и показывать, что умеет.</p>
+      <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Введи в OpenCode:</div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Привет! Как тебя зовут и что ты умеешь?</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Покажи, как выглядит интерфейс: что за кнопки и панели вокруг?</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Сколько сейчас времени и какой сегодня день недели?</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="info-box"><i class="fa-solid fa-shield-halved"></i> Если OpenCode запросит разрешение — нажимай «Разрешить» / «Allow».</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-number" style="background:var(--primary-light);color:var(--primary)">1.4</span>
+      <span class="step-title">Открываем рабочую папку</span>
+      <span class="step-duration">15 мин</span>
+    </div>
+    <div class="step-body">
+      <p>«Познакомим» OpenCode с твоими папками, чтобы он мог в них работать.</p>
+      <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Введи в OpenCode:</div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>В какой папке на компьютере я сейчас нахожусь?</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Открой папку C:\Мои документы\Рабочая и покажи, что в ней есть</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Сколько всего файлов и папок внутри?</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="tip-box"><i class="fa-regular fa-lightbulb"></i> Если OpenCode говорит «не могу найти папку» — проверь путь. Открой проводник, зайди в нужную папку и скопируй путь из адресной строки.</div>
+    </div>
+  </div>
+
+  <div class="result-box">
+    <h3><i class="fa-regular fa-circle-check"></i> Итог блока</h3>
+    <ul>
+      <li><i class="fa-solid fa-check"></i> Установил OpenCode Desktop</li>
+      <li><i class="fa-solid fa-check"></i> Запустил сессию (модель подобралась автоматически)</li>
+      <li><i class="fa-solid fa-check"></i> Сделал 3 пробных запроса</li>
+      <li><i class="fa-solid fa-check"></i> Открыл свою рабочую папку и увидел её содержимое</li>
+    </ul>
+  </div>
+
+  <div class="practice-box collapsed">
+    <h3><i class="fa-solid fa-list-check"></i> Практическая работа <span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span></h3>
+    <div class="practice-body">
+    <p>Все промпты из файла «Промпты к Занятию 3» — по порядку:</p>
+
+    <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 1</div>
+    <div class="prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Разложи файлы word для каждого блока в папку блока 1 и т.д.</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 2</div>
+    <div class="prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Надо сравнить файлы: Блок_1_Знакомство_с_OpenCode.docx и Из сессии Opencode_как эффективно работать со мной и из других файлов.docx, добавить в файл Блок_1_Знакомство_с_OpenCode.docx текст относящийся к Блоку 1. Напиши системный промпт</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label system-prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 3 — Системный промпт</div>
+    <div class="prompt system-prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Ты — методист, разрабатывающий учебные материалы. У тебя есть два файла: Блок_1_Знакомство_с_OpenCode.docx — готовый конспект занятия (4 раздела: установка, запуск, первые запросы, открытие папки) и Из сессии Opencode_как эффективно работать со мной_и из других файлов.docx — расшифровка сессии с OpenCode. Задача: Сравни содержимое обоих файлов. Найди в файле 2 информацию, относящуюся к Блоку 1 (знакомство, установка, интерфейс, первые шаги). Добавь эту информацию в соответствующие разделы файла 1. Также добавь новые разделы, если найдёшь важные темы, которых нет в блоке 1 (например, «Система подтверждений», «Одна задача — одна сессия», «AGENTS.md»). Сохрани обновлённый файл. Требования: простой язык, сохрани нумерацию разделов (1.1, 1.2), добавленные фрагменты логически встраивай в существующую структуру, дублируй релевантные части.</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== БЛОК 2 ===================== -->
+<section class="section" id="section-block2">
+  <div class="block-header">
+    <button class="back" onclick="showSection('home')"><i class="fa-solid fa-arrow-left"></i> На главную</button>
+    <h2>Блок 2. Порядок в папках</h2>
+    <div class="goal">Научиться анализировать структуру папок, сортировать файлы по типам и наводить порядок с помощью OpenCode.</div>
+    <div class="duration"><i class="fa-regular fa-clock"></i> 45 мин · Уровень: с нуля</div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-number" style="background:#fef3c7;color:#b45309">2.1</span>
+      <span class="step-title">Смотрим, что лежит в папках</span>
+      <span class="step-duration">10 мин</span>
+    </div>
+    <div class="step-body">
+      <p>Посмотрим на общую картину — что у тебя в папке, какие файлы и папки есть.</p>
+      <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Введи в OpenCode:</div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Покажи всю структуру папок и файлов — что у меня тут есть?</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <p>Можешь попросить подробнее — сгруппировать по расширениям:</p>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Покажи только файлы, сгруппируй по расширениям (.docx, .jpg, .pdf)</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="tip-box"><i class="fa-regular fa-lightbulb"></i> OpenCode покажет дерево папок — похоже на проводник, только текстом. Это может быть длинно, это нормально.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-number" style="background:#fef3c7;color:#b45309">2.2</span>
+      <span class="step-title">Сортируем файлы по типам</span>
+      <span class="step-duration">20 мин</span>
+    </div>
+    <div class="step-body">
+      <p>Попросим OpenCode разложить всё по полочкам.</p>
+      <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Введи в OpenCode:</div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Отсортируй все файлы по типам: документы (.docx, .pdf, .txt) сложи в папку Документы, изображения (.jpg, .png) в папку Изображения, архивы (.zip, .rar) в папку Архивы, остальные — в Прочее</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="info-box"><i class="fa-solid fa-shield-halved"></i> OpenCode попросит разрешение на изменения — нажми «Разрешить». Это безопасно: мы только перемещаем файлы, не удаляем.</div>
+      <div class="tip-box"><i class="fa-regular fa-lightbulb"></i> OpenCode покажет PowerShell-скрипт, который будет выполнять сортировку. Не пугайся кода — просто смотри, что он делает.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-number" style="background:#fef3c7;color:#b45309">2.3</span>
+      <span class="step-title">Проверяем результат</span>
+      <span class="step-duration">10 мин</span>
+    </div>
+    <div class="step-body">
+      <p>Сортировка завершена. Проверим, что получилось.</p>
+      <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Введи в OpenCode:</div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Покажи новую структуру папок — что изменилось?</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <p>Дополнительные проверки:</p>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Сколько файлов в каждой папке?</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Есть ли дубликаты одинаковых файлов?</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="tip-box"><i class="fa-regular fa-lightbulb"></i> Попробуй свои правила сортировки: отсортируй по дате создания или найди все файлы больше 10 МБ.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-number" style="background:#fef3c7;color:#b45309">2.4</span>
+      <span class="step-title">Бонус: чистим пустые папки</span>
+      <span class="step-duration">5 мин</span>
+    </div>
+    <div class="step-body">
+      <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Введи в OpenCode:</div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Найди и удали все пустые папки</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="info-box"><i class="fa-solid fa-shield-halved"></i> Пустые папки можно удалять без риска — в них ничего нет.</div>
+    </div>
+  </div>
+
+  <div class="result-box">
+    <h3><i class="fa-regular fa-circle-check"></i> Итог блока</h3>
+    <ul>
+      <li><i class="fa-solid fa-check"></i> Может посмотреть структуру любых папок</li>
+      <li><i class="fa-solid fa-check"></i> Может автоматически сортировать файлы по любым правилам</li>
+      <li><i class="fa-solid fa-check"></i> Понимает, что OpenCode показывает код операций</li>
+      <li><i class="fa-solid fa-check"></i> Может находить дубликаты и чистить пустые папки</li>
+    </ul>
+  </div>
+
+  <div class="practice-box collapsed">
+    <h3><i class="fa-solid fa-list-check"></i> Практическая работа <span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span></h3>
+    <div class="practice-body">
+    <p>Все промпты из файла «Промпты к Занятию 3» — по порядку:</p>
+
+    <div class="prompt-label system-prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 1 — Системный промпт</div>
+    <div class="prompt system-prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Ты — методист, разрабатывающий учебные материалы. У тебя есть два файла: Блок_2_Порядок_в_папках.docx — готовый конспект занятия и Из сессии Opencode_как эффективно работать со мной_и из других файлов.docx — расшифровка сессии. Задача: сравни содержимое обоих файлов. Найди в файле 2 информацию, относящуюся к Блоку 2. Добавь эту информацию в соответствующие разделы файла 1. Также добавь новые разделы, если найдёшь важные темы, которых нет в блоке 2. Сохрани обновлённый файл. Требования: простой язык, сохрани нумерацию разделов, добавляй фрагменты логически, дублируй при необходимости.</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 2</div>
+    <div class="prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Проанализируй папку Блок 2: сколько всего файлов, какие типы файлов, сколько места они занимают. Покажи топ-5 самых больших файлов</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label system-prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 3 — Системный промпт из Qwen</div>
+    <div class="prompt system-prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Ты — профессиональный ИИ-аналитик файловых систем. Твоя задача — провести детальный анализ содержимого указанной папки и предоставить структурированный, точный и легко читаемый отчет. При получении запроса на анализ директории ты должен использовать доступные инструменты для сбора данных и сформировать отчет по структуре: 1. Общая статистика (количество файлов и подпапок). 2. Распределение по типам файлов (сгруппируй по расширениям, укажи количество и суммарный объем, отсортируй по убыванию). 3. Общий объем занимаемого места (человекочитаемый формат, округление до 2 знаков). 4. Топ-5 самых больших файлов (имя, путь, размер). Используй Markdown. Если нет доступа — пропусти и сделай пометку. Не выдумывай данные. Отвечай на русском.</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label system-prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 4 — Системный промпт из Open Code</div>
+    <div class="prompt system-prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Ты — ассистент по организации файлов. Нужно навести порядок в папке. Что нужно сделать в два этапа: Этап 1 — Анализ (только посмотреть, ничего не менять): 1. Просканируй всю папку и все её подпапки. 2. Покажи структуру: какие папки есть, какие типы файлов, что повторяется (одинаковые имена, одинаковый размер). 3. Найди дубликаты (одинаковые имя + размер). 4. Предложи план реорганизации: собрать всё в одну папку КПК, логическая структура по темам/типам, что удалить (дубликаты, пустые папки), какие файлы лишние. Этап 2 (только после подтверждения): удали дубликаты (оставить по одной копии), удали пустые папки, создай папку КПК с предложенной структурой, разложи файлы. Важно: ничего не удаляй без согласия, каждый шаг показывай и спрашивай разрешение. Не трогай файлы за пределами указанной папки.</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== БЛОК 3 ===================== -->
+<section class="section" id="section-block3">
+  <div class="block-header">
+    <button class="back" onclick="showSection('home')"><i class="fa-solid fa-arrow-left"></i> На главную</button>
+    <h2>Блок 3. Анализ текстовых документов</h2>
+    <div class="goal">Научиться находить, читать, сравнивать и анализировать текстовые документы (договоры, инструкции) с помощью OpenCode.</div>
+    <div class="duration"><i class="fa-regular fa-clock"></i> 45 мин · Уровень: с нуля</div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-number" style="background:#f3e8ff;color:#7c3aed">3.1</span>
+      <span class="step-title">Находим все документы</span>
+      <span class="step-duration">5 мин</span>
+    </div>
+    <div class="step-body">
+      <p>Убедись, что в рабочей папке лежат 2-3 текстовых файла (.docx, .txt). Начнём с поиска.</p>
+      <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Введи в OpenCode:</div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Найди в этой папке все договоры — файлы, в названии которых есть слово договор или contract</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <p>Можешь искать по-другому:</p>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Найди все файлы с расширением .docx в этой папке</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-number" style="background:#f3e8ff;color:#7c3aed">3.2</span>
+      <span class="step-title">Читаем документ и извлекаем главное</span>
+      <span class="step-duration">15 мин</span>
+    </div>
+    <div class="step-body">
+      <p>Попросим OpenCode прочитать договор и вытащить ключевую информацию.</p>
+      <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Введи в OpenCode (подставь свой файл):</div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Прочитай файл Договор_поставки.docx и выдели: 1. Стороны договора 2. Сумму 3. Срок действия 4. Предмет договора 5. Особые условия (если есть)</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="info-box"><i class="fa-regular fa-circle-exclamation"></i> OpenCode лучше всего работает с .txt и .docx. .pdf читает хуже. Если не вышло — открой .pdf в Word и сохрани как .docx.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-number" style="background:#f3e8ff;color:#7c3aed">3.3</span>
+      <span class="step-title">Сравниваем два документа</span>
+      <span class="step-duration">10 мин</span>
+    </div>
+    <div class="step-body">
+      <p>Сравним два договора — например, старый и новый, или два варианта.</p>
+      <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Введи в OpenCode:</div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Сравни файлы Договор_поставки.docx и Договор_услуг.docx. Покажи основные различия: суммы, сроки, условия</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="tip-box"><i class="fa-regular fa-lightbulb"></i> Так можно сравнивать не только договоры, а любые тексты: инструкции, прайсы, версии документов.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-number" style="background:#f3e8ff;color:#7c3aed">3.4</span>
+      <span class="step-title">Составляем сводку по всем документам</span>
+      <span class="step-duration">15 мин</span>
+    </div>
+    <div class="step-body">
+      <p>Финальное задание — сделать общую сводку.</p>
+      <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Введи в OpenCode:</div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Составь сводную таблицу по всем найденным документам: название файла, стороны, сумма, срок, статус (действует / истек). Если данных нет — напиши нет данных</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <p>Бонусный запрос:</p>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Найди во всех документах упоминания НДС, пени, штрафов — выпиши отдельно</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="tip-box"><i class="fa-regular fa-lightbulb"></i> Вручную пришлось бы открывать каждый файл и читать. OpenCode сделал это за пару секунд.</div>
+    </div>
+  </div>
+
+  <div class="result-box">
+    <h3><i class="fa-regular fa-circle-check"></i> Итог блока</h3>
+    <ul>
+      <li><i class="fa-solid fa-check"></i> Может находить файлы по названию и содержимому</li>
+      <li><i class="fa-solid fa-check"></i> Умеет читать .docx, .txt и извлекать ключевую информацию</li>
+      <li><i class="fa-solid fa-check"></i> Может сравнивать документы и показывать различия</li>
+      <li><i class="fa-solid fa-check"></i> Составляет сводные таблицы по группе документов</li>
+    </ul>
+  </div>
+
+  <div class="practice-box collapsed">
+    <h3><i class="fa-solid fa-list-check"></i> Практическая работа <span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span></h3>
+    <div class="practice-body">
+    <p>Все промпты из файла «Промпты к Занятию 3» — по порядку:</p>
+
+    <div class="prompt-label system-prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 1 — Системный промпт</div>
+    <div class="prompt system-prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Ты — методист, разрабатывающий учебные материалы. У тебя есть два файла: Блок_3_Анализ_текстовых_документов.docx — готовый конспект занятия и Из сессии Opencode_как эффективно работать со мной_и из других файлов.docx — расшифровка сессии. Задача: сравни содержимое обоих файлов. Найди в файле 2 информацию, относящуюся к Блоку 3. Добавь эту информацию в соответствующие разделы файла 1. Также добавь новые разделы, если найдёшь важные темы, которых нет в блоке 3. Сохрани обновлённый файл. Требования: простой язык, сохрани нумерацию разделов, добавляй фрагменты логически, дублируй при необходимости.</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 2</div>
+    <div class="prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Найди в папке C:\Users\user\Downloads\for_Cloude Code\prepord-card\Занятие 3_Open Code\Блок 3 все договоры — файлы, в названии которых есть слово договор или contract</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 3</div>
+    <div class="prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Прочитай файл Договор АНО О.Б. Видео 2024.docx и выдели: 1. Стороны договора 2. Сумму 3. Срок действия 4. Предмет договора 5. Особые условия (если есть)</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 4</div>
+    <div class="prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Сравни файлы Договор АНО О.Б. Видео 2024.docx и !договор _Видео_ 2024_шаблон.doc. Покажи основные различия: суммы, сроки, условия</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 5</div>
+    <div class="prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Составь сводную таблицу по всем найденным документам C:\Users\user\Downloads\for_Cloude Code\prepord-card\Занятие 3_Open Code\Блок 3: название файла, стороны, сумма, срок, статус (действует / истек). Если данных нет — напиши нет данных</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 6</div>
+    <div class="prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Ты — методист, разрабатывающий учебные материалы. У тебя есть два файла: Блок_1_Знакомство_с_OpenCode_из QWEN.docx и Блок_1_Знакомство_с_OpenCode.docx. Задача: сравни содержимое обоих файлов, составь сводную таблицу по всем найденным различиям</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== БЛОК 4 ===================== -->
+<section class="section" id="section-block4">
+  <div class="block-header">
+    <button class="back" onclick="showSection('home')"><i class="fa-solid fa-arrow-left"></i> На главную</button>
+    <h2>Блок 4. Анализ таблиц Excel</h2>
+    <div class="goal">Научиться конвертировать Excel в CSV, читать и анализировать табличные данные с помощью OpenCode.</div>
+    <div class="duration"><i class="fa-regular fa-clock"></i> 45 мин · Уровень: с нуля</div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-number" style="background:#e0f2fe;color:#0369a1">4.1</span>
+      <span class="step-title">Превращаем Excel в CSV</span>
+      <span class="step-duration">10 мин</span>
+    </div>
+    <div class="step-body">
+      <p>OpenCode не умеет читать .xlsx напрямую. Конвертируем таблицу в CSV — простой текстовый формат.</p>
+      <div class="info-box"><i class="fa-regular fa-circle-question"></i> CSV — это та же таблица, только данные разделены запятыми. Открывается любым блокнотом, весит меньше.</div>
+      <p><strong>Как сохранить Excel в CSV:</strong></p>
+      <ol style="margin-left:20px;line-height:2">
+        <li>Открой свой Excel-файл</li>
+        <li>Нажми <strong>Файл → Сохранить как</strong></li>
+        <li>В поле «Тип файла» выбери <strong>«CSV (разделители — запятые)» (*.csv)</strong></li>
+        <li>Назови файл (например, <code>tablica.csv</code>) и нажми <strong>Сохранить</strong></li>
+      </ol>
+      <div class="tip-box"><i class="fa-regular fa-lightbulb"></i> Excel может сказать «Некоторые функции могут быть потеряны» — нажми «Да», данные останутся.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-number" style="background:#e0f2fe;color:#0369a1">4.2</span>
+      <span class="step-title">Читаем CSV — знакомимся с данными</span>
+      <span class="step-duration">10 мин</span>
+    </div>
+    <div class="step-body">
+      <p>Попросим OpenCode прочитать таблицу.</p>
+      <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Введи в OpenCode:</div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Прочитай файл tablica.csv и покажи первые 10 строк</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <p>Разведочные запросы:</p>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Сколько всего строк и столбцов в таблице?</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Как называются столбцы?</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Есть ли пустые ячейки? В каких столбцах?</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-number" style="background:#e0f2fe;color:#0369a1">4.3</span>
+      <span class="step-title">Анализируем данные</span>
+      <span class="step-duration">20 мин</span>
+    </div>
+    <div class="step-body">
+      <p>Пусть в таблице есть столбцы с числами (например, Сумма, Количество, Цена).</p>
+      <p><strong>Запрос 1. Посчитать итоги:</strong></p>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Посчитай общую сумму по столбцу Сумма</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Покажи среднее, минимум и максимум по столбцу Цена</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <p><strong>Запрос 2. Отфильтровать данные:</strong></p>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Покажи только те строки, где сумма больше 10 000</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Найди строки, где количество меньше 5</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <p><strong>Запрос 3. Найти аномалии:</strong></p>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Есть ли в таблице отрицательные значения? Покажи их</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Найди дубликаты по столбцу Номер заказа</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Покажи топ-5 самых дорогих позиций</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <p><strong>Запрос 4. Сгруппировать:</strong></p>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Сгруппируй данные по столбцу Категория и покажи сумму по каждой категории</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Посчитай, сколько записей в каждой категории</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="tip-box"><i class="fa-regular fa-lightbulb"></i> Если OpenCode что-то не понял — переформулируй проще. Вместо «сгруппируй» скажи «раздели по категориям и посчитай».</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-number" style="background:#e0f2fe;color:#0369a1">4.4</span>
+      <span class="step-title">Что ещё можно автоматизировать</span>
+      <span class="step-duration">5 мин</span>
+    </div>
+    <div class="step-body">
+      <p>Мы прошли три задачи. Вот что ещё можно попробовать самостоятельно:</p>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Создай отчет по таблице и сохрани его в новый файл</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Объедини две таблицы в одну</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Найди во всех договорах все даты и выпиши их в таблицу</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="prompt" onclick="copyPrompt(this)">
+        <i class="fa-regular fa-copy copy-icon"></i>
+        <code>Сделай расписание / напоминалку по срокам из договоров</code><span class="copy-tooltip">Скопировано</span>
+      </div>
+      <div class="info-box"><i class="fa-regular fa-lightbulb"></i> Главное правило: если нужно сделать что-то скучное и повторяющееся — попроси OpenCode. Он любит такую работу.</div>
+    </div>
+  </div>
+
+  <div class="result-box">
+    <h3><i class="fa-regular fa-circle-check"></i> Итог блока</h3>
+    <ul>
+      <li><i class="fa-solid fa-check"></i> Умеет конвертировать Excel в CSV (вручную)</li>
+      <li><i class="fa-solid fa-check"></i> Читает CSV и показывает данные</li>
+      <li><i class="fa-solid fa-check"></i> Считает суммы, средние, минимумы, максимумы</li>
+      <li><i class="fa-solid fa-check"></i> Фильтрует строки по условиям</li>
+      <li><i class="fa-solid fa-check"></i> Группирует данные по категориям</li>
+      <li><i class="fa-solid fa-check"></i> Находит аномалии и дубликаты</li>
+    </ul>
+  </div>
+
+  <div class="practice-box collapsed">
+    <h3><i class="fa-solid fa-list-check"></i> Практическая работа <span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span></h3>
+    <div class="practice-body">
+    <p>Все промпты из файла «Промпты к Занятию 3» — по порядку:</p>
+
+    <div class="prompt-label system-prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 1 — Системный промпт</div>
+    <div class="prompt system-prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Ты — методист, разрабатывающий учебные материалы. У тебя есть два файла: Блок_4_Анализ_таблиц_Excel.docx — готовый конспект занятия и Из сессии Opencode_как эффективно работать со мной_и из других файлов.docx — расшифровка сессии. Задача: сравни содержимое обоих файлов. Найди в файле 2 информацию, относящуюся к Блоку 4. Добавь эту информацию в соответствующие разделы файла 1. Также добавь новые разделы, если найдёшь важные темы, которых нет в блоке 4. Сохрани обновлённый файл. Требования: простой язык, сохрани нумерацию разделов, добавляй фрагменты логически, дублируй при необходимости.</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 2</div>
+    <div class="prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>В C:\Users\user\Downloads\for_Cloude Code\prepord-card\Занятие 3_Open Code\Блок 4 проанализируй файл 04-06-24_список-обзон-оплата сентября.csv и напиши план анализа этого файла</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 3</div>
+    <div class="prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Нужен анализ "Результат обзвона педагогами", "Результат обзвона администраторами"</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 4</div>
+    <div class="prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Сделай сводную таблицу и визуализацию</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 5</div>
+    <div class="prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Нужна сводная таблица и графики в Excel.</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 6</div>
+    <div class="prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Ты аналитик, надо проанализировать два файла в C:\Users\user\Downloads\for_Cloude Code\prepord-card\Занятие 3_Open Code\Блок 4, файл 1 — площадка-тип_групп-класс_06.05.2025, файл 2 — численность по площадкам-типам-классам 2-05-24. Напиши системный промпт</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label system-prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 7 — Системный промпт «Анализ численности слушателей»</div>
+    <div class="prompt system-prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Ты — аналитик данных. Сравни два файла по численности слушателей за два периода (2024 vs 2025). Файл 1: площадка-тип_групп-класс_06.05.2025 — 7 площадок, 304 слушателя. Файл 2: численность по площадкам-типам-классам 2-05-24 — 6 площадок, 363 слушателя. Столбцы: Площадка | Тип группы | Класс в школе | Количество. Задачи: 1. Проверка сходимости данных (пересчитай итоги, сравни суммы). 2. Сводная таблица по площадкам с динамикой и Δ%. 3. Сводная таблица по типам групп. 4. Анализ изменений (какие типы групп исчезли/появились). 5. Распределение по классам. 6. Выводы (3-5 ключевых). Формат: Markdown, числа до двух знаков, проценты ±X,XX %. Приоритет: правильность > понятность > польза.</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 8 — Уточнение к формату</div>
+    <div class="prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Уточнение для промпта: все таблицы — в Excel. Сделать визуализацию в Excel. Числа — до двух знаков после запятой, проценты — «±X,XX %». Если данных для вывода нет — пиши «Нет данных». Выводы — кратко, по одной строке на мысль.</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+
+    <div class="prompt-label"><i class="fa-regular fa-keyboard"></i> Промпт 9</div>
+    <div class="prompt" onclick="copyPrompt(this)">
+      <i class="fa-regular fa-copy copy-icon"></i>
+      <code>Объясни простым языком, как для ребенка 10 лет, что такое дашборт, какие есть виды дашбортов, как создать дашборт в Excel</code><span class="copy-tooltip">Скопировано</span>
+    </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  Практическое пособие к занятию 3 · OpenCode Desktop · 2026
+</footer>
+
+<script>
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  document.querySelectorAll('.header-nav a').forEach(a => a.classList.remove('active'));
+  const navLink = document.querySelector('.header-nav a[data-section="' + id + '"]');
+  if (navLink) navLink.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+document.querySelectorAll('.header-nav a').forEach(link => {
+  link.addEventListener('click', function(e) { e.preventDefault(); showSection(this.dataset.section); });
+});
+
+function copyPrompt(el) {
+  const text = el.querySelector('code').textContent.trim();
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px;top:0';
+  document.body.appendChild(ta); ta.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) {}
+  document.body.removeChild(ta);
+  const tooltip = el.querySelector('.copy-tooltip');
+  tooltip.textContent = ok ? 'Скопировано' : 'Выделено — Ctrl+C';
+  tooltip.classList.add('show');
+  setTimeout(() => { tooltip.classList.remove('show'); tooltip.textContent = 'Скопировано'; }, 1400);
+}
+
+document.querySelectorAll('.practice-box h3').forEach(h => {
+  h.addEventListener('click', function(e) {
+    if (e.target.closest('.prompt')) return;
+    this.closest('.practice-box').classList.toggle('collapsed');
+  });
+});
+</script>
+</body>
+</html>

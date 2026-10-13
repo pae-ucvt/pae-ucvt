@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Дашборд: Численность слушателей 2024 vs 2025</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f7fa; color: #333; padding: 20px; }
+.container { max-width: 1200px; margin: 0 auto; }
+h1 { font-size: 26px; color: #2F5496; margin-bottom: 4px; }
+.subtitle { color: #888; font-size: 14px; margin-bottom: 20px; }
+.kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+.kpi-card { background: #fff; border-radius: 8px; padding: 14px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border: 1px solid #e0e0e0; }
+.kpi-label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+.kpi-value { font-size: 32px; font-weight: 700; color: #2F5496; margin-top: 4px; }
+.kpi-value.red { color: #C00000; }
+.kpi-value.green { color: #006100; }
+.kpi-card.highlight-red { background: #FFC7CE; border-color: #C00000; }
+.kpi-card.highlight-green { background: #C6EFCE; border-color: #006100; }
+.chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.chart-full { margin-bottom: 16px; }
+.chart-box { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border: 1px solid #e0e0e0; }
+.chart-box h3 { font-size: 14px; color: #2F5496; margin-bottom: 8px; }
+.table-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.table-box { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border: 1px solid #e0e0e0; }
+.table-box h3 { font-size: 14px; color: #2F5496; margin-bottom: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: #2F5496; color: #fff; padding: 6px 8px; text-align: center; font-weight: 600; }
+td { padding: 5px 8px; text-align: center; border-bottom: 1px solid #eee; }
+td:first-child { text-align: left; font-weight: 500; }
+tr:nth-child(even) td { background: #f9f9f9; }
+tr.total td { font-weight: 700; background: #D6E4F0; }
+td.red { color: #C00000; font-weight: 600; }
+td.green { color: #006100; font-weight: 600; }
+tr.new-row { background: #E8F5E9; }
+td.new-row { background: #E8F5E9; }
+.footer { text-align: center; color: #aaa; font-size: 12px; margin-top: 20px; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>&#128202; Дашборд: Численность слушателей</h1>
+<p class="subtitle">Курс &laquo;Компьютерные технологии для школьников&raquo; &mdash; 2024 vs 2025</p>
+
+<div class="kpi-row" id="kpi-row"></div>
+
+<div class="chart-row">
+  <div class="chart-box"><h3>&#9632; Численность по площадкам</h3><canvas id="chart1"></canvas></div>
+  <div class="chart-box"><h3>&#9632; Численность по типам групп</h3><canvas id="chart2"></canvas></div>
+</div>
+
+<div class="chart-full">
+  <div class="chart-box"><h3>&#9632; Распределение по классам</h3><canvas id="chart3"></canvas></div>
+</div>
+
+<div class="table-row">
+  <div class="table-box">
+    <h3>&#9632; Динамика по площадкам</h3>
+    <table><thead><tr><th>Площадка</th><th>2024</th><th>2025</th><th>&#916;, чел.</th><th>&#916;, %</th></tr></thead><tbody id="plat-tbody"></tbody><tfoot id="plat-tfoot"></tfoot></table>
+  </div>
+  <div class="table-box">
+    <h3>&#9632; Динамика по типам групп</h3>
+    <table><thead><tr><th>Тип</th><th>2024</th><th>2025</th><th>&#916;, чел.</th><th>&#916;, %</th></tr></thead><tbody id="type-tbody"></tbody><tfoot id="type-tfoot"></tfoot></table>
+  </div>
+</div>
+
+<div class="footer">Дашборд создан на основе данных от 02.05.2024 и 06.05.2025</div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+const DATA = {
+  total_24: 363, total_25: 304, diff: -59, pct: -16.25,
+  platforms: {"Будапештская":[29,20],"Культура":[47,46],"Наличная":[0,6],"Руднева":[48,47],"Сизова":[101,80],"Солидарности":[66,61],"Ушинского":[72,44]},
+  types: {"3D":[16,0],"АП":[31,31],"ВМ":[33,0],"ВПР":[6,6],"ДИ":[0,9],"КМ":[0,27],"КП":[37,42],"КТ":[21,14],"МП":[9,14],"ОКГ":[33,16],"ОП":[25,31],"ПИ":[11,14],"ПМ1":[26,23],"ПМ2":[21,0],"ПП":[38,13],"ПТ":[56,64]},
+  classes: {"2":[15,7],"3":[34,25],"4":[46,26],"5":[45,43],"6":[49,44],"7":[64,44],"8":[51,54],"9":[35,34],"10":[23,18],"11":[0,5],"12":[1,4]}
+};
+
+const { total_24, total_25, diff, pct, platforms, types, classes } = DATA;
+const pctFormatted = (pct >= 0 ? '+' : '') + pct.toFixed(2) + ' %';
+
+document.getElementById('kpi-row').innerHTML = `
+  <div class="kpi-card"><div class="kpi-label">Всего 2024</div><div class="kpi-value">${total_24}</div></div>
+  <div class="kpi-card"><div class="kpi-label">Всего 2025</div><div class="kpi-value">${total_25}</div></div>
+  <div class="kpi-card${diff < 0 ? ' highlight-red' : ' highlight-green'}"><div class="kpi-label">Изменение</div><div class="kpi-value ${diff < 0 ? 'red' : 'green'}">${pctFormatted}</div></div>
+  <div class="kpi-card"><div class="kpi-label">Площадок</div><div class="kpi-value">${Object.keys(platforms).length}</div></div>
+  <div class="kpi-card"><div class="kpi-label">Типов групп</div><div class="kpi-value">${Object.keys(types).length}</div></div>
+`;
+
+// Chart 1: Platforms
+new Chart(document.getElementById('chart1'), {
+  type: 'bar', data: {
+    labels: Object.keys(platforms),
+    datasets: [
+      { label: '2024', data: Object.values(platforms).map(v => v[0]), backgroundColor: '#4472C4', borderRadius: 4 },
+      { label: '2025', data: Object.values(platforms).map(v => v[1]), backgroundColor: '#ED7D31', borderRadius: 4 }
+    ]
+  },
+  options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+});
+
+// Chart 2: Types (horizontal bars so labels fit)
+new Chart(document.getElementById('chart2'), {
+  type: 'bar', data: {
+    labels: Object.keys(types),
+    datasets: [
+      { label: '2024', data: Object.values(types).map(v => v[0]), backgroundColor: '#4472C4', borderRadius: 4 },
+      { label: '2025', data: Object.values(types).map(v => v[1]), backgroundColor: '#ED7D31', borderRadius: 4 }
+    ]
+  },
+  options: { responsive: true, indexAxis: 'y', plugins: { legend: { position: 'bottom' } } }
+});
+
+// Chart 3: Classes
+new Chart(document.getElementById('chart3'), {
+  type: 'bar', data: {
+    labels: Object.keys(classes),
+    datasets: [
+      { label: '2024', data: Object.values(classes).map(v => v[0]), backgroundColor: '#4472C4', borderRadius: 4 },
+      { label: '2025', data: Object.values(classes).map(v => v[1]), backgroundColor: '#ED7D31', borderRadius: 4 }
+    ]
+  },
+  options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+});
+
+// Tables
+function rowHtml(name, v24, v25) {
+  if (v24 === 0) return `<tr class="new-row"><td>${name}</td><td>&mdash;</td><td>${v25}</td><td>+${v25}</td><td>новый</td></tr>`;
+  if (v25 === 0) return `<tr><td>${name}</td><td>${v24}</td><td>&mdash;</td><td class="red">-${v24}</td><td class="red">-100 %</td></tr>`;
+  const d = v25 - v24;
+  const p = (d / v24 * 100).toFixed(2) + ' %';
+  const cls = d < 0 ? 'red' : d > 0 ? 'green' : '';
+  const dyn = (d > 0 ? '+' : '') + d;
+  const pCls = d < 0 ? 'red' : d > 0 ? 'green' : '';
+  return `<tr><td>${name}</td><td>${v24}</td><td>${v25}</td><td class="${cls}">${dyn}</td><td class="${pCls}">${p}</td></tr>`;
+}
+
+document.getElementById('plat-tbody').innerHTML = Object.keys(platforms).map(p => rowHtml(p, platforms[p][0], platforms[p][1])).join('');
+document.getElementById('plat-tfoot').innerHTML = `<tr class="total"><td>ИТОГО</td><td>${total_24}</td><td>${total_25}</td><td>${diff}</td><td>${pctFormatted}</td></tr>`;
+
+document.getElementById('type-tbody').innerHTML = Object.keys(types).map(t => rowHtml(t, types[t][0], types[t][1])).join('');
+document.getElementById('type-tfoot').innerHTML = `<tr class="total"><td>ИТОГО</td><td>${total_24}</td><td>${total_25}</td><td>${diff}</td><td>${pctFormatted}</td></tr>`;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>НОУР — Курсы повышения квалификации по нейросетям</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* ===== RESET ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#050814;--navy:#0a0e27;--dark:#101637;--deep:#161d4a;
+  --blue:#4f6cff;--blue-light:#7b9aff;--teal:#00d4aa;--teal-dark:#00b894;
+  --purple:#7b61ff;--violet:#a78bfa;
+  --gold:#ffd700;--gold-light:#ffed4a;
+  --white:#ffffff;--off-white:#f0f4ff;--light:#e8edf5;
+  --gray:#8a94a6;--gray-light:#b0b8c8;
+  --radius:16px;--radius-sm:10px;--radius-xs:6px;
+  --shadow-sm:0 4px 20px rgba(10,14,39,0.08);--shadow-md:0 12px 40px rgba(10,14,39,0.12);
+  --shadow-lg:0 24px 60px rgba(10,14,39,0.16);--shadow-glow:0 0 40px rgba(79,108,255,0.15);
+  --transition:0.4s cubic-bezier(.22,1,.36,1);--ease: cubic-bezier(.22,1,.36,1)
+}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{font-family:'Inter',-apple-system,system-ui,sans-serif;color:var(--dark);line-height:1.6;font-size:16px;background:var(--white);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--blue);text-decoration:none;transition:color var(--transition)}
+.container{max-width:1140px;margin:0 auto;padding:0 28px}
+/* ===== TYPOGRAPHY ===== */
+h1,h2,h3,h4{line-height:1.15;font-weight:800;letter-spacing:-0.03em}
+.section{padding:100px 0}
+.section-dark{background:linear-gradient(160deg,var(--navy),var(--dark));color:var(--white)}
+.section-label{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--blue);margin-bottom:12px}
+.section-title{font-size:clamp(28px,3.2vw,48px);margin-bottom:16px}
+.section-sub{font-size:clamp(15px,1.1vw,18px);color:var(--gray);max-width:600px;margin:0 auto 56px;text-align:center;line-height:1.7}
+.section-dark .section-sub{color:rgba(255,255,255,0.6)}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:16px 32px;border-radius:var(--radius-xs);font-size:15px;font-weight:600;cursor:pointer;transition:all var(--transition);border:none;font-family:inherit;line-height:1}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--purple));color:var(--white);box-shadow:0 8px 24px rgba(79,108,255,0.25)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(79,108,255,0.35)}
+.btn-secondary{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:var(--white);backdrop-filter:blur(8px)}
+.btn-secondary:hover{background:rgba(255,255,255,0.15);border-color:var(--blue);transform:translateY(-2px)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy);box-shadow:0 8px 24px rgba(255,215,0,0.25)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(255,215,0,0.35)}
+/* ===== CANVAS BG ===== */
+#particleCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+/* ===== HEADER ===== */
+.site-header{position:fixed;top:0;left:0;right:0;z-index:1000;padding:16px 0;transition:all var(--transition)}
+.site-header.scrolled{background:rgba(10,14,39,0.92);backdrop-filter:blur(20px);padding:10px 0;box-shadow:0 4px 30px rgba(0,0,0,0.15)}
+.header-inner{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.header-logo{display:flex;align-items:center;gap:14px}
+.header-logo img{height:48px;width:auto;transition:height var(--transition)}
+.site-header.scrolled .header-logo img{height:40px}
+.header-title{color:var(--white);font-size:14px;font-weight:600;line-height:1.3;max-width:320px;opacity:0.9}
+.header-right{display:flex;align-items:center;gap:20px}
+.header-phone{display:flex;flex-direction:column;align-items:flex-end}
+.header-phone a{color:var(--white);font-size:15px;font-weight:700;transition:opacity var(--transition);white-space:nowrap}
+.header-phone a:hover{opacity:0.7;color:var(--white)}
+.header-phone small{font-size:10px;color:rgba(255,255,255,0.5);line-height:1}
+.header-cta-btn{padding:10px 24px;font-size:13px;flex-shrink:0}
+/* ===== HERO ===== */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;background:linear-gradient(160deg,var(--black) 0%,var(--navy) 30%,var(--dark) 60%,var(--deep) 100%);overflow:hidden;padding:120px 0 80px}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(79,108,255,0.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 50%,rgba(123,97,255,0.06) 0%,transparent 50%),radial-gradient(ellipse at 50% 100%,rgba(0,212,170,0.04) 0%,transparent 40%);pointer-events:none;z-index:0}
+.hero::after{content:'';position:absolute;top:-40%;left:-10%;width:120%;height:80%;background:radial-gradient(ellipse at 50% 50%,rgba(79,108,255,0.03),transparent 60%);pointer-events:none;z-index:0;animation:heroGlow 8s ease-in-out infinite alternate}
+@keyframes heroGlow{0%{transform:translateY(0) scale(1)}100%{transform:translateY(-20px) scale(1.05)}}
+.hero .container{position:relative;z-index:1}
+.hero-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:32px;justify-content:center}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:100px;font-size:12px;font-weight:600;background:rgba(79,108,255,0.1);border:1px solid rgba(79,108,255,0.2);color:var(--blue-light);letter-spacing:0.3px}
+.hero-badge i{font-size:11px}
+.hero-badge.gold{background:rgba(255,215,0,0.08);border-color:rgba(255,215,0,0.15);color:var(--gold)}
+.hero h1{font-size:clamp(32px,4.5vw,62px);font-weight:900;line-height:1.08;margin-bottom:20px;letter-spacing:-0.04em;text-align:center}
+.hero h1 .gradient-text{background:linear-gradient(135deg,var(--white) 0%,var(--blue-light) 40%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero h1 .highlight{background:linear-gradient(135deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:clamp(15px,1.15vw,18px);color:rgba(255,255,255,0.6);text-align:center;max-width:680px;margin:0 auto 40px;line-height:1.7}
+.hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:56px}
+.hero-cta .btn{min-width:200px;justify-content:center}
+.hero-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:920px;margin:0 auto}
+.hero-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius);padding:24px 20px;cursor:pointer;transition:all var(--transition);text-align:center;color:var(--white);position:relative;overflow:hidden}
+.hero-card::before{content:'';position:absolute;inset:0;background:linear-gradient(160deg,transparent,rgba(79,108,255,0.05));opacity:0;transition:opacity var(--transition)}
+.hero-card:hover{transform:translateY(-6px);border-color:rgba(79,108,255,0.2);box-shadow:var(--shadow-glow);background:rgba(255,255,255,0.06)}
+.hero-card:hover::before{opacity:1}
+.hero-card-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,rgba(79,108,255,0.15),rgba(123,97,255,0.1));display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:22px;color:var(--blue-light);transition:all var(--transition)}
+.hero-card:hover .hero-card-icon{transform:scale(1.08);background:linear-gradient(135deg,rgba(79,108,255,0.25),rgba(123,97,255,0.2))}
+.hero-card h3{font-size:16px;font-weight:700;margin-bottom:4px}
+.hero-card p{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.5}
+/* ===== FLOATING ORBS ===== */
+.orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
+.orb-1{width:600px;height:600px;top:-20%;right:-10%;background:rgba(79,108,255,0.04);animation:orbFloat 12s ease-in-out infinite}
+.orb-2{width:400px;height:400px;bottom:-10%;left:-5%;background:rgba(123,97,255,0.03);animation:orbFloat 16s ease-in-out infinite reverse}
+.orb-3{width:300px;height:300px;top:40%;left:50%;background:rgba(0,212,170,0.02);animation:orbFloat 10s ease-in-out infinite}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-30px) scale(1.05)}66%{transform:translate(-20px,20px) scale(0.95)}}
+/* ===== BENEFITS ===== */
+.benefits{background:var(--off-white)}
+.benefits-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.benefit-card{background:var(--white);border-radius:var(--radius);padding:40px 28px;box-shadow:var(--shadow-sm);border:1px solid rgba(0,0,0,0.04);transition:all var(--transition);position:relative;overflow:hidden}
+.benefit-card::after{content:'';position:absolute;top:0;left:0;width:4px;height:0;background:linear-gradient(180deg,var(--blue),var(--purple));transition:height var(--transition)}
+.benefit-card:hover::after{height:100%}
+.benefit-card:hover{transform:translateY(-8px);box-shadow:var(--shadow-md)}
+.benefit-num{font-size:44px;font-weight:900;background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;letter-spacing:-0.05em}
+.benefit-card h3{font-size:16px;font-weight:700;margin-bottom:8px;color:var(--navy)}
+.benefit-card p{font-size:14px;color:var(--gray);line-height:1.6}
+/* ===== PROGRAMS ===== */
+.programs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.program-card{background:var(--white);border-radius:var(--radius);padding:36px 28px;box-shadow:var(--shadow-sm);border:1px solid rgba(0,0,0,0.04);transition:all var(--transition);display:flex;flex-direction:column;position:relative}
+.program-card:hover{transform:translateY(-8px);box-shadow:var(--shadow-lg)}
+.program-tag{display:inline-block;padding:4px 12px;border-radius:100px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:16px;width:fit-content}
+.program-tag.edu{background:rgba(79,108,255,0.08);color:var(--blue)}
+.program-tag.office{background:rgba(0,212,170,0.08);color:var(--teal-dark)}
+.program-tag.creative{background:rgba(123,97,255,0.08);color:var(--purple)}
+.program-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px}
+.program-icon.edu{background:linear-gradient(135deg,rgba(79,108,255,0.12),rgba(79,108,255,0.05));color:var(--blue)}
+.program-icon.office{background:linear-gradient(135deg,rgba(0,212,170,0.12),rgba(0,212,170,0.05));color:var(--teal)}
+.program-icon.creative{background:linear-gradient(135deg,rgba(123,97,255,0.12),rgba(123,97,255,0.05));color:var(--purple)}
+.program-card h3{font-size:20px;font-weight:800;margin-bottom:12px;color:var(--navy)}
+.program-detail{margin-bottom:6px;font-size:14px;color:var(--gray);line-height:1.6;padding-left:20px;position:relative}
+.program-detail::before{content:'\2713';position:absolute;left:0;font-weight:700;color:var(--teal)}
+.program-result{margin:16px 0 12px;padding:14px 16px;background:linear-gradient(135deg,var(--off-white),#e0e8ff);border-radius:var(--radius-sm);font-size:13px;font-weight:600;color:var(--navy);line-height:1.5}
+.program-footer{margin-top:auto;display:flex;flex-direction:column;gap:10px;padding-top:16px}
+
+.program-card .btn{justify-content:center;width:100%}
+/* ===== PATHWAY ===== */
+.pathway{background:linear-gradient(160deg,var(--navy),var(--dark));color:var(--white);position:relative;overflow:hidden}
+.pathway::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(79,108,255,0.06),transparent 50%);pointer-events:none}
+.pathway-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;position:relative;z-index:1}
+.pathway-step{text-align:center;position:relative}
+.pathway-step-num{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,rgba(79,108,255,0.15),rgba(123,97,255,0.08));border:2px solid rgba(79,108,255,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:24px;font-weight:900;color:var(--blue-light);transition:all var(--transition)}
+.pathway-step:hover .pathway-step-num{transform:scale(1.1);border-color:var(--blue);box-shadow:0 0 30px rgba(79,108,255,0.2)}
+.pathway-step h4{font-size:16px;font-weight:700;margin-bottom:6px}
+.pathway-step p{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6;max-width:200px;margin:0 auto}
+.pathway-connector{display:none}
+/* connector via pseudo */
+.pathway-step:not(:last-child)::after{content:'\2192';position:absolute;top:20px;right:-20px;font-size:28px;color:var(--blue);opacity:0.3}
+/* ===== TRUST ===== */
+.trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.trust-card{background:var(--white);border-radius:var(--radius);padding:36px 28px;box-shadow:var(--shadow-sm);border:1px solid rgba(0,0,0,0.04);transition:all var(--transition);text-align:center}
+.trust-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-md)}
+.trust-card-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px}
+.trust-card-icon.blue{background:rgba(79,108,255,0.08);color:var(--blue)}
+.trust-card-icon.green{background:rgba(0,212,170,0.08);color:var(--teal)}
+.trust-card-icon.purple{background:rgba(123,97,255,0.08);color:var(--purple)}
+.trust-card h4{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.trust-card p{font-size:14px;color:var(--gray);line-height:1.6}
+.trust-reviews{grid-column:span 3;display:grid;grid-template-columns:1fr 1fr;gap:16px;text-align:left;padding:0}
+.trust-reviews.card{border:none;box-shadow:none;background:transparent;padding:0}
+.review-item{background:var(--white);border-radius:var(--radius);padding:24px;border:1px solid rgba(0,0,0,0.04);box-shadow:var(--shadow-sm);transition:all var(--transition)}
+.review-item:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
+.review-item p{font-size:14px;color:#4a5a6a;font-style:italic;line-height:1.7;margin-bottom:12px}
+.review-item small{font-size:12px;color:var(--gray);font-weight:600}
+.social-block{background:linear-gradient(135deg,var(--dark),var(--deep));border-radius:var(--radius);padding:48px;text-align:center;color:var(--white);margin-top:32px;position:relative;overflow:hidden}
+.social-block::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 30%,rgba(255,215,0,0.06),transparent 50%);pointer-events:none}
+.social-block h3{font-size:22px;font-weight:700;margin-bottom:6px;position:relative;z-index:1}
+.social-block p{font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:24px;position:relative;z-index:1}
+.social-links{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+.social-link{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:var(--radius-xs);font-weight:600;transition:all var(--transition);font-size:14px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:var(--white)}
+.social-link:hover{background:rgba(255,255,255,0.1);border-color:var(--blue);transform:translateY(-3px);color:var(--white);box-shadow:0 8px 24px rgba(0,0,0,0.2)}
+/* ===== CTA ===== */
+.cta-section{background:linear-gradient(160deg,var(--navy),var(--dark),var(--deep));position:relative;overflow:hidden}
+.cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(79,108,255,0.06),transparent 50%),radial-gradient(ellipse at 70% 50%,rgba(123,97,255,0.04),transparent 50%);pointer-events:none}
+.cta-wrap{max-width:520px;margin:0 auto;position:relative;z-index:1}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:rgba(255,255,255,0.8)}
+.form-group input,.form-group select{width:100%;padding:16px 18px;border:2px solid rgba(255,255,255,0.06);border-radius:var(--radius-sm);font-size:15px;font-family:inherit;background:rgba(255,255,255,0.04);color:var(--white);outline:none;transition:all var(--transition)}
+.form-group input::placeholder{color:rgba(255,255,255,0.25)}
+.form-group select option{color:var(--navy);background:var(--white)}
+.form-group input:focus,.form-group select:focus{border-color:var(--blue);background:rgba(255,255,255,0.08);box-shadow:0 0 0 4px rgba(79,108,255,0.08)}
+.form-group input.error{border-color:#ef4444}
+.form-checkbox{display:flex;align-items:flex-start;gap:12px;margin-bottom:24px}
+.form-checkbox input{width:18px;height:18px;margin-top:3px;accent-color:var(--blue);flex-shrink:0}
+.form-checkbox label{font-size:13px;color:rgba(255,255,255,0.6);cursor:pointer;line-height:1.4}
+.form-checkbox label a{color:var(--blue-light);text-decoration:underline}
+.cta-section .submit-btn{width:100%;padding:18px;background:linear-gradient(135deg,var(--blue),var(--purple));color:var(--white);border:none;border-radius:var(--radius-sm);font-size:16px;font-weight:700;cursor:pointer;transition:all var(--transition);font-family:inherit;box-shadow:0 8px 24px rgba(79,108,255,0.25)}
+.cta-section .submit-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(79,108,255,0.35)}
+/* ===== FOOTER ===== */
+.footer{background:var(--black);color:rgba(255,255,255,0.6);padding:60px 0 32px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px}
+.footer-brand{display:flex;flex-direction:column;gap:12px}
+.footer-brand img{height:44px;width:auto}
+.footer-brand p{font-size:14px;line-height:1.7;color:rgba(255,255,255,0.4);max-width:360px}
+.footer h4{font-size:14px;font-weight:700;color:var(--white);margin-bottom:16px;letter-spacing:0}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:10px}
+.footer-links a{font-size:13px;color:rgba(255,255,255,0.5);transition:all var(--transition);display:flex;align-items:center;gap:8px}
+.footer-links a:hover{color:var(--blue-light);transform:translateX(4px)}
+.footer-icons{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.footer-icons a{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:var(--radius-xs);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);transition:all var(--transition)}
+.footer-icons a:hover{background:var(--blue);border-color:var(--blue)}
+.footer-icons a:hover img{filter:brightness(0) invert(1)}
+.footer-icons img{width:20px;height:20px;transition:filter var(--transition)}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.06);padding-top:20px;margin-top:40px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12px;color:rgba(255,255,255,0.3)}
+/* ===== SCROLL ANIMATIONS ===== */
+.reveal{opacity:0;transform:translateY(40px);transition:opacity 0.8s var(--ease),transform 0.8s var(--ease)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-left{opacity:0;transform:translateX(-40px);transition:opacity 0.8s var(--ease),transform 0.8s var(--ease)}
+.reveal-left.visible{opacity:1;transform:translateX(0)}
+.reveal-right{opacity:0;transform:translateX(40px);transition:opacity 0.8s var(--ease),transform 0.8s var(--ease)}
+.reveal-right.visible{opacity:1;transform:translateX(0)}
+.reveal-scale{opacity:0;transform:scale(0.92);transition:opacity 0.8s var(--ease),transform 0.8s var(--ease)}
+.reveal-scale.visible{opacity:1;transform:scale(1)}
+.reveal-stagger .reveal-item{opacity:0;transform:translateY(30px);transition:opacity 0.6s var(--ease),transform 0.6s var(--ease)}
+.reveal-stagger .reveal-item.visible{opacity:1;transform:translateY(0)}
+/* ===== RESPONSIVE ===== */
+@media(max-width:1024px){
+  .benefits-grid{grid-template-columns:repeat(2,1fr)}
+  .programs-grid{grid-template-columns:repeat(2,1fr)}
+  .pathway-steps{grid-template-columns:repeat(2,1fr);gap:40px}
+  .pathway-step:not(:last-child)::after{display:none}
+  .trust-grid{grid-template-columns:repeat(2,1fr)}
+  .trust-reviews{grid-column:span 2}
+}
+@media(max-width:768px){
+  .section{padding:64px 0}
+  .container{padding:0 20px}
+  .site-header{padding:12px 0}
+  .header-title{display:none}
+  .header-right{gap:12px}
+  .header-phone small{display:none}
+  .header-phone a{font-size:14px}
+  .header-cta-btn{padding:8px 16px;font-size:12px}
+  .hero{padding:100px 0 56px;min-height:auto}
+  .hero-cards{grid-template-columns:1fr;max-width:400px}
+  .hero-cta{flex-direction:column;align-items:center}
+  .hero-cta .btn{width:100%;max-width:320px}
+  .benefits-grid{grid-template-columns:1fr;gap:16px}
+  .programs-grid{grid-template-columns:1fr;gap:20px}
+  .pathway-steps{gap:32px}
+  .pathway-step:not(:last-child)::after{display:none}
+  .trust-grid{grid-template-columns:1fr}
+  .trust-reviews{grid-column:span 1;grid-template-columns:1fr}
+  .social-block{padding:32px 20px}
+  .footer-grid{grid-template-columns:1fr;gap:32px}
+  .footer-bottom{flex-direction:column;text-align:center}
+}
+@media(max-width:480px){
+  .container{padding:0 16px}
+  .hero h1{font-size:28px}
+  .hero-sub{font-size:14px}
+  .section-title{font-size:24px}
+  .benefit-card{padding:28px 20px}
+  .program-card{padding:28px 20px}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header" id="siteHeader">
+  <div class="container">
+    <div class="header-inner">
+      <div class="header-logo">
+        <a href="/"><img src="logo.png" alt="НОУР" onerror="this.style.display='none'"></a>
+        <div class="header-title">Санкт-Петербургский Национальный открытый Университет</div>
+      </div>
+      <div class="header-right">
+        <div class="header-phone">
+          <a href="tel:+78124301401">+7 (812) 430-14-01</a>
+          <small>звонок по России бесплатно +7 (800) 200-09-70</small>
+        </div>
+        <a href="#cta" class="btn btn-primary header-cta-btn">Записаться</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="hero">
+  <canvas id="particleCanvas"></canvas>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="container">
+    <div class="hero-badges">
+      <span class="hero-badge"><i class="fas fa-shield-alt"></i> Лицензия №2141</span>
+      <span class="hero-badge"><i class="fas fa-database"></i> ФИС ФРДО</span>
+      <span class="hero-badge gold"><i class="fas fa-certificate"></i> Удостоверение 32 ак.ч.</span>
+      <span class="hero-badge"><i class="fas fa-microphone-live"></i> Живой эфир</span>
+    </div>
+    <h1><span class="gradient-text">Повышение квалификации</span><br><span class="gradient-text">по нейросетям</span> <span class="highlight">с удостоверением</span></h1>
+    <p class="hero-sub">32 часа очных занятий в Санкт-Петербурге или живых вебинаров с преподавателем. Актуальные инструменты, реальные кейсы и официальный документ для вашего портфолио.</p>
+    <div class="hero-cta">
+      <a href="#programs" class="btn btn-primary"><i class="fas fa-graduation-cap"></i> Выбрать программу</a>
+      <a href="#cta" class="btn btn-secondary"><i class="fas fa-question-circle"></i> Получить консультацию</a>
+    </div>
+    <div class="hero-cards" id="heroCards">
+      <div class="hero-card" onclick="selectProgram(0)">
+        <div class="hero-card-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+        <h3>Для преподавателей</h3>
+        <p>СПО, вузы, ДОП, методисты</p>
+      </div>
+      <div class="hero-card" onclick="selectProgram(1)">
+        <div class="hero-card-icon"><i class="fas fa-briefcase"></i></div>
+        <h3>Для офиса</h3>
+        <p>Менеджеры, HR, бухгалтеры</p>
+      </div>
+      <div class="hero-card" onclick="selectProgram(2)">
+        <div class="hero-card-icon"><i class="fas fa-palette"></i></div>
+        <h3>Для креативных</h3>
+        <p>Маркетологи, SMM, дизайнеры</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BENEFITS ===== -->
+<section class="section benefits" id="benefits">
+  <div class="container">
+    <p class="section-label reveal">Почему выбирают нас</p>
+    <h2 class="section-title reveal" style="text-align:center">Четыре ключевых преимущества</h2>
+    <p class="section-sub reveal">Программы, которые дают реальный результат и официальный статус</p>
+    <div class="benefits-grid reveal-stagger">
+      <div class="benefit-card reveal-item">
+        <div class="benefit-num">01</div>
+        <h3>Государственное удостоверение</h3>
+        <p>Данные вносятся в ФИС ФРДО — подходит для аттестации, отчётности и конкурсных процедур</p>
+      </div>
+      <div class="benefit-card reveal-item">
+        <div class="benefit-num">02</div>
+        <h3>Живой эфир, не запись</h3>
+        <p>Вебинар с преподавателем в реальном времени — можно задать вопрос, уточнить детали, получить обратную связь</p>
+      </div>
+      <div class="benefit-card reveal-item">
+        <div class="benefit-num">03</div>
+        <h3>32 часа чистой практики</h3>
+        <p>Не теория ради теории — каждое занятие приближает к готовому портфолио промптов для ваших задач</p>
+      </div>
+      <div class="benefit-card reveal-item">
+        <div class="benefit-num">04</div>
+        <h3>Налоговый вычет 13%</h3>
+        <p>Для физических лиц — верните часть стоимости обучения через налоговую</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROGRAMS ===== -->
+<section class="section" id="programs">
+  <div class="container">
+    <p class="section-label reveal" style="text-align:center">Программы</p>
+    <h2 class="section-title reveal" style="text-align:center">Выберите свою программу</h2>
+    <p class="section-sub reveal">Каждая программа разработана<br>под конкретные задачи и уровень подготовки</p>
+    <div class="programs-grid reveal-stagger">
+      <div class="program-card reveal-item" data-program="0">
+        <span class="program-tag edu">Педагогика</span>
+        <div class="program-icon edu"><i class="fas fa-chalkboard-teacher"></i></div>
+        <h3>Для преподавателей</h3>
+        <div class="program-detail">СПО, вузы, дополнительное образование</div>
+        <div class="program-detail">Конспекты и презентации за минуты через ИИ</div>
+        <div class="program-detail">Адаптация контента под уровень аудитории</div>
+        <div class="program-detail">Задания и тесты с помощью нейросетей</div>
+        <div class="program-result">Результат: мини-портфолио промптов для педагога</div>
+        <div class="program-footer">
+          <button class="btn btn-primary" onclick="selectProgram(0)"><i class="fas fa-pen"></i> Записаться</button>
+        </div>
+      </div>
+      <div class="program-card reveal-item" data-program="1">
+        <span class="program-tag office">Офис</span>
+        <div class="program-icon office"><i class="fas fa-briefcase"></i></div>
+        <h3>Для офиса</h3>
+        <div class="program-detail">Менеджеры, HR, секретари, бухгалтеры</div>
+        <div class="program-detail">Автоматизация отчётов, писем и документов</div>
+        <div class="program-detail">Анализ данных через ИИ</div>
+        <div class="program-detail">Экономия 20–40% времени на рутине</div>
+        <div class="program-result">Результат: шаблоны промптов для офисных задач</div>
+        <div class="program-footer">
+          <button class="btn btn-primary" onclick="selectProgram(1)"><i class="fas fa-pen"></i> Записаться</button>
+        </div>
+      </div>
+      <div class="program-card reveal-item" data-program="2">
+        <span class="program-tag creative">Креатив</span>
+        <div class="program-icon creative"><i class="fas fa-palette"></i></div>
+        <h3>Для креативных</h3>
+        <div class="program-detail">Маркетологи, SMM, дизайнеры, продюсеры</div>
+        <div class="program-detail">Генерация текста, изображений и видео</div>
+        <div class="program-detail">Айдентика и презентации через ИИ</div>
+        <div class="program-detail">Продвинутый промптинг и работа с нейросетями</div>
+        <div class="program-result">Результат: готовый проект для портфолио</div>
+        <div class="program-footer">
+          <button class="btn btn-primary" onclick="selectProgram(2)"><i class="fas fa-pen"></i> Записаться</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PATHWAY ===== -->
+<section class="section pathway" id="pathway">
+  <div class="container">
+    <p class="section-label reveal" style="text-align:center">Путь к результату</p>
+    <h2 class="section-title reveal" style="text-align:center">Как проходит обучение</h2>
+    <p class="section-sub reveal">Четыре шага от заявки до официального удостоверения</p>
+    <div class="pathway-steps reveal-stagger">
+      <div class="pathway-step reveal-item">
+        <div class="pathway-step-num">1</div>
+        <h4>Оставляете заявку</h4>
+        <p>Выбираете программу и формат — очно в СПб или онлайн</p>
+      </div>
+      <div class="pathway-step reveal-item">
+        <div class="pathway-step-num">2</div>
+        <h4>32 часа занятий</h4>
+        <p>Живые вебинары с преподавателем, практические задания, разбор кейсов</p>
+      </div>
+      <div class="pathway-step reveal-item">
+        <div class="pathway-step-num">3</div>
+        <h4>Портфолио промптов</h4>
+        <p>По итогу — готовый набор решений под ваши профессиональные задачи</p>
+      </div>
+      <div class="pathway-step reveal-item">
+        <div class="pathway-step-num">4</div>
+        <h4>Удостоверение ФРДО</h4>
+        <p>Официальный документ с внесением в Федеральный реестр</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TRUST ===== -->
+<section class="section" id="trust">
+  <div class="container">
+    <p class="section-label reveal" style="text-align:center">Доверие</p>
+    <h2 class="section-title reveal" style="text-align:center">Нам доверяют</h2>
+    <p class="section-sub reveal">Документы, репутация и реальные отзывы наших слушателей</p>
+    <div class="trust-grid reveal-stagger">
+      <div class="trust-card reveal-item">
+        <div class="trust-card-icon blue"><i class="fas fa-gavel"></i></div>
+        <h4>Лицензия №2141</h4>
+        <p>от 06.09.16 — выдана Комитетом по образованию Санкт-Петербурга</p>
+      </div>
+      <div class="trust-card reveal-item">
+        <div class="trust-card-icon green"><i class="fas fa-database"></i></div>
+        <h4>ФИС ФРДО</h4>
+        <p>Удостоверение вносится в Федеральный реестр документов об образовании</p>
+      </div>
+      <div class="trust-card reveal-item">
+        <div class="trust-card-icon purple"><i class="fas fa-calendar-check"></i></div>
+        <h4>Опыт с 2016 года</h4>
+        <p>Более 8 лет успешной образовательной деятельности</p>
+      </div>
+      <div class="trust-reviews reveal-item">
+        <div class="review-item">
+          <p>«Очень доволен обучением. Всё актуально, много практики. Преподаватель отвечал на все вопросы даже после занятий. Удостоверение получил через 10 дней.»</p>
+          <small>— Михаил, преподаватель СПбГУ</small>
+        </div>
+        <div class="review-item">
+          <p>«Удобно, что можно учиться онлайн вживую. Я из Казани, но чувствовала себя как в аудитории. Разобрали мои рабочие задачи — применила сразу же.»</p>
+          <small>— Елена, руководитель отдела маркетинга</small>
+        </div>
+      </div>
+    </div>
+    <div class="social-block reveal">
+      <h3>Подпишитесь и получите скидку 5%</h3>
+      <p>Следите за новостями, акциями и новыми программами в наших соцсетях</p>
+      <div class="social-links">
+        <a href="https://vk.com/nourspb" target="_blank" rel="noopener" class="social-link"><i class="fab fa-vk"></i> VKонтакте</a>
+        <a href="https://t.me/SPBNOU" target="_blank" rel="noopener" class="social-link"><i class="fab fa-telegram-plane"></i> Telegram</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="section cta-section" id="cta">
+  <div class="container">
+    <p class="section-label reveal" style="text-align:center">Запись на обучение</p>
+    <h2 class="section-title reveal" style="text-align:center;color:#fff">Начните прямо сейчас</h2>
+    <p class="section-sub reveal">Оставьте заявку — мы свяжемся с вами в ближайшее время и поможем выбрать программу</p>
+    <form class="cta-wrap reveal" id="orderForm" novalidate>
+      <div class="form-group">
+        <label for="name">Имя <span style="color:var(--blue)">*</span></label>
+        <input type="text" id="name" placeholder="Введите ваше имя" required>
+      </div>
+      <div class="form-group">
+        <label for="phone">Телефон <span style="color:var(--blue)">*</span></label>
+        <input type="tel" id="phone" placeholder="+7 (___) ___-__-__" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email <span style="color:var(--blue)">*</span></label>
+        <input type="email" id="email" placeholder="your@email.ru" required>
+      </div>
+      <div class="form-group">
+        <label for="program">Программа</label>
+        <select id="program">
+          <option value="Для преподавателей">Для преподавателей</option>
+          <option value="Для офиса">Для офиса</option>
+          <option value="Для креативных">Для креативных</option>
+          <option value="Не знаю — помогите выбрать">Не знаю — помогите выбрать</option>
+        </select>
+      </div>
+      <div class="form-checkbox">
+        <input type="checkbox" id="agree" required>
+        <label for="agree">Я согласен на <a href="#" onclick="alert('Политика конфиденциальности — заглушка');return false">обработку персональных данных</a> <span style="color:var(--blue)">*</span></label>
+      </div>
+      <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Записаться на курс</button>
+    </form>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="logo.png" alt="НОУР" onerror="this.style.display='none'" style="height:44px;width:auto">
+        <p>АНП ВО «Санкт-Петербургский Национальный открытый Университет» — образовательная лицензия №2141 от 06.09.16</p>
+        <div class="footer-icons">
+          <a href="https://vk.com/nourspb" target="_blank"><img src="https://nouronline.ru/images/s/vk.png" alt="VK" onerror="this.style.display='none'"></a>
+          <a href="https://t.me/SPBNOU" target="_blank"><img src="https://nouronline.ru/img/tg.png" alt="Telegram" onerror="this.style.display='none'"></a>
+          <a href="https://www.youtube.com/@SPBNOU" target="_blank"><img src="https://nouronline.ru/images/youtube.png" alt="YouTube" onerror="this.style.display='none'" style="height:20px;width:auto"></a>
+          <a href="https://dzen.ru/spbnou" target="_blank"><img src="https://nouronline.ru/images/zen.png" alt="Dzen" onerror="this.style.display='none'" style="height:20px;width:auto"></a>
+        </div>
+      </div>
+      <div>
+        <h4>Контакты</h4>
+        <ul class="footer-links">
+          <li><a href="tel:+78124301401"><i class="fas fa-phone"></i> +7 (812) 430-14-01</a></li>
+          <li><a href="tel:+78002000970"><i class="fas fa-phone"></i> +7 (800) 200-09-70</a></li>
+          <li><span><i class="fas fa-map-marker-alt"></i> СПб, Сестрорецкая ул., 6</span></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Ссылки</h4>
+        <ul class="footer-links">
+          <li><a href="https://minobrnauki.gov.ru/" target="_blank">Минобрнауки РФ</a></li>
+          <li><a href="https://edu.gov.ru/" target="_blank">Минпросвещения РФ</a></li>
+          <li><a href="https://www.edu.ru/" target="_blank">Российское образование</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; АНП ВО «СПбНОУ». Лицензия №2141 от 06.09.16</span>
+      <span><a href="#" onclick="alert('Политика конфиденциальности — заглушка');return false" style="color:rgba(255,255,255,0.3)">Политика конфиденциальности</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ===== PHONE FORMATTING =====
+document.getElementById('phone').addEventListener('input',function(e){
+  var x=this.value.replace(/\D/g,'').substring(0,11);
+  if(!x.startsWith('7')&&x.length>0)x='7'+x;
+  var m='';if(x.length>0)m='+7';if(x.length>1)m+=' ('+x.substring(1,4);if(x.length>=5)m+=') '+x.substring(4,7);if(x.length>=8)m+='-'+x.substring(7,9);if(x.length>=10)m+='-'+x.substring(9,11);this.value=m
+})
+
+// ===== FORM =====
+document.getElementById('orderForm').addEventListener('submit',function(e){
+  e.preventDefault();var v=true;var f=['name','phone','email'];
+  f.forEach(function(id){var el=document.getElementById(id);el.classList.remove('error');if(!el.value.trim()){el.classList.add('error');v=false}});
+  if(!document.getElementById('agree').checked){v=false;alert('Пожалуйста, согласитесь на обработку персональных данных')}
+  if(!v){alert('Заполните все обязательные поля')}else{
+    var d={name:document.getElementById('name').value,phone:document.getElementById('phone').value,email:document.getElementById('email').value,program:document.getElementById('program').value};
+    console.log('Данные формы:',d);alert('Спасибо! Мы свяжемся с вами в ближайшее время.')
+  }
+})
+
+// ===== PROGRAM SELECT =====
+function selectProgram(i){
+  var p=['Для преподавателей','Для офиса','Для креативных'];
+  var s=document.getElementById('program');if(s)s.value=p[i];
+  document.getElementById('cta').scrollIntoView({behavior:'smooth'})
+}
+
+// ===== SCROLL REVEAL =====
+(function(){
+  var observer=new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        if(entry.target.classList.contains('reveal-stagger')){
+          var items=entry.target.querySelectorAll('.reveal-item');
+          items.forEach(function(el,i){setTimeout(function(){el.classList.add('visible')},i*120)})
+        }else{
+          entry.target.classList.add('visible')
+        }
+      }
+    })
+  },{threshold:0.1});
+  document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.reveal-stagger').forEach(function(el){observer.observe(el)})
+})();
+
+// ===== HEADER SCROLL =====
+(function(){
+  var header=document.getElementById('siteHeader');
+  window.addEventListener('scroll',function(){
+    header.classList.toggle('scrolled',window.scrollY>80)
+  })
+})();
+
+// ===== PARTICLE NETWORK CANVAS =====
+(function(){
+  var canvas=document.getElementById('particleCanvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var particles=[];
+  var mouse={x:null,y:null,radius:120};
+
+  function resize(){
+    var rect=canvas.parentElement.getBoundingClientRect();
+    canvas.width=rect.width;
+    canvas.height=rect.height
+  }
+  resize();
+  window.addEventListener('resize',resize);
+
+  var count=Math.min(Math.floor(canvas.width*canvas.height/12000),100);
+  for(var i=0;i<Math.max(count,50);i++){
+    particles.push({
+      x:Math.random()*canvas.width,y:Math.random()*canvas.height,
+      vx:(Math.random()-0.5)*0.4,vy:(Math.random()-0.5)*0.4,
+      r:Math.random()*2+0.5,alpha:Math.random()*0.5+0.2
+    })
+  }
+
+  canvas.addEventListener('mousemove',function(e){
+    var rect=canvas.getBoundingClientRect();
+    mouse.x=e.clientX-rect.left;mouse.y=e.clientY-rect.top
+  });
+  canvas.addEventListener('mouseleave',function(){mouse.x=null;mouse.y=null});
+
+  function animate(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    var w=canvas.width,h=canvas.height;
+    for(var i=0;i<particles.length;i++){
+      var p=particles[i];
+      if(mouse.x!==null){
+        var dx=mouse.x-p.x,dy=mouse.y-p.y,dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<mouse.radius){p.vx-=dx*0.0003;p.vy-=dy*0.0003}
+      }
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>w)p.vx*=-1;
+      if(p.y<0||p.y>h)p.vy*=-1;
+      p.x=Math.max(0,Math.min(w,p.x));p.y=Math.max(0,Math.min(h,p.y));
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(140,180,255,'+p.alpha+')';ctx.fill();
+      for(var j=i+1;j<particles.length;j++){
+        var p2=particles[j];
+        var dx=p.x-p2.x,dy=p.y-p2.y,dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<150){
+          var alpha=(1-dist/150)*0.15;
+          ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p2.x,p2.y);
+          ctx.strokeStyle='rgba(79,108,255,'+alpha+')';ctx.lineWidth=0.6;ctx.stroke()
+        }
+      }
+    }
+    requestAnimationFrame(animate)
+  }
+  animate()
+})();
+</script>
+</body>
+</html>

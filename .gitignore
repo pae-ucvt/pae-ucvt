@@ -1,0 +1,17 @@
+# Служебные файлы OpenCode / Playwright
+.playwright-mcp/
+**/.playwright-mcp/
+**/node_modules/
+
+# Python
+__pycache__/
+*.pyc
+
+# Временные файлы Office
+~$*
+mso*.tmp
+
+# Исходные данные — не храним в истории
+*.xls
+*.xlsx
+*.csv
